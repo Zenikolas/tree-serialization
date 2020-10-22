@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 
 unsigned long long swapBytes(uint64_t src) {
     enum {
@@ -39,20 +40,19 @@ double read(const std::string_view filename)
 {
     std::ifstream ifs(filename.data(), std::ifstream::binary | std::ifstream::in);
     uint64_t ret;
+
     ifs >> ret;
     ret = swapBytes(ret);
 
     return reinterpret_cast<double&>(ret);
 }
 
-
-
 int main() {
     const char* filename = "double_serialization.dat";
     double value = 100.021923123123000999999;
     write(filename, value);
     double valueCheck = read(filename);
-    std::cout << valueCheck << std::endl;
+    std::cout << std::setprecision(10) << valueCheck << std::endl;
 
 
     return 0;
