@@ -1,8 +1,8 @@
 # tree-serializator
-De-Serialization of multi-dimensional tree storing different types:
+[De]Serialization of multi-dimensional tree storing different types:
 
-    - integer,
-    - floating point,
+    - integer
+    - floating point
     - string
 
 ### Issues
@@ -11,3 +11,4 @@ De-Serialization of multi-dimensional tree storing different types:
     - divide to lib the most part of the codebase
     - add test
     - add description to methods
+    - add CMD parsing

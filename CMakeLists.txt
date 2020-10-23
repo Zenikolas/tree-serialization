@@ -3,6 +3,11 @@ project(tree_serialization)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SRC main.cpp NodeValue.cpp Node.cpp Tree.cpp)
+enable_testing()
+find_package(GTest REQUIRED)
 
-add_executable(tree_serialization ${SRC})
+include_directories(tree_serialization_lib)
+
+add_subdirectory(tree_serialization_lib)
+add_executable(tree_serialization main.cpp)
+target_link_libraries(tree_serialization tree_serialization_lib)

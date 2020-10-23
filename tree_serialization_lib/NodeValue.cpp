@@ -2,7 +2,7 @@
 
 #include <arpa/inet.h>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 
 namespace {
     unsigned long long htonll(uint64_t src) {
@@ -44,21 +44,22 @@ namespace {
         os << value;
     }
 
-    NodeValue extractInt(std::string_view buffer) {
-        if (buffer.size() != sizeof(int)) {
+    NodeValue extractInt(std::istream &istream) {
+        uint32_t valueUnsigned;
+        istream >> valueUnsigned;
+        valueUnsigned = ntohl(valueUnsigned);
+        if (istream.bad() || istream.fail()) {
             return NodeValue();
         }
-
-        uint32_t valueUnsigned = ntohl(*reinterpret_cast<const uint32_t *>(buffer.data()));
 
         return NodeValue(static_cast<int>(valueUnsigned));
     }
 
-    NodeValue extractDouble(std::string_view buffer) {
+    NodeValue extractDouble(std::istream &istream) {
         assert(false && "not implemented");
     }
 
-    NodeValue extractString(std::string_view buffer) {
+    NodeValue extractString(std::istream &istream) {
         assert(false && "not implemented");
     }
 }
@@ -76,7 +77,7 @@ NodeValue::Type NodeValue::getType() const {
 }
 
 void NodeValue::printTypeAndSize(std::ostream &os, Type type) const {
-    os << type;
+    os << static_cast<uint8_t>(type);
     if (type == NodeValue::STRING_TYPE) {
         auto &strRef = std::get<std::string>(m_value);
         os << strRef.size();
@@ -84,6 +85,16 @@ void NodeValue::printTypeAndSize(std::ostream &os, Type type) const {
 }
 
 void NodeValue::print(std::ostream &os) const {
+    if (std::holds_alternative<int>(m_value)) {
+        os << std::get<int>(m_value);
+    } else if (std::holds_alternative<double>(m_value)) {
+        os << std::get<double>(m_value);
+    } else if (std::holds_alternative<std::string>(m_value)) {
+        os << std::get<std::string>(m_value);
+    }
+}
+
+void NodeValue::serialize(std::ostream &os) const {
     NodeValue::Type type = getType();
     printTypeAndSize(os, type);
 
@@ -98,26 +109,29 @@ void NodeValue::print(std::ostream &os) const {
             ::print(os, std::get<std::string>(m_value));
             break;
         default:
-            std::cerr << "Unsupported type to print: " << type << std::endl;
+            std::cerr << "Unsupported type to serialize: " << type << std::endl;
             break;
     }
 }
 
-NodeValue NodeValue::fromString(std::string_view str) {
-    if (str.empty()) {
+NodeValue NodeValue::deserialize(std::istream &stream) {
+    if (stream.eof()) {
         std::cerr << "Invalid buffer for representation NodeValue" << std::endl;
         return NodeValue();
     }
 
-    auto type = static_cast<Type>(str[0]);
-    std::string_view valueStr = str.substr(1);
-    switch (type) {
+    uint8_t type;
+    stream >> type;
+    if (stream.bad() || stream.fail()) {
+        return NodeValue();
+    }
+    switch (static_cast<Type>(type)) {
         case NodeValue::INT_TYPE:
-            return extractInt(valueStr);
+            return extractInt(stream);
         case NodeValue::DOUBLE_TYPE:
-            return extractDouble(valueStr);
+            return extractDouble(stream);
         case NodeValue::STRING_TYPE:
-            return extractString(valueStr);
+            return extractString(stream);
         default:
             std::cerr << "Unsupported type to extract from string: " << type << std::endl;
             break;

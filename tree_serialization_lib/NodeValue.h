@@ -6,9 +6,9 @@
 #include <ostream>
 
 class NodeValue {
-    std::variant<int, double, std::string> m_value;
+    std::variant<bool, int, double, std::string> m_value;
 
-    enum Type : char {
+    enum Type : uint8_t {
         INT_TYPE,
         DOUBLE_TYPE,
         STRING_TYPE,
@@ -26,15 +26,16 @@ public:
 
     void print(std::ostream& os) const;
 
-    static NodeValue fromString(std::string_view str);
+    void serialize(std::ostream& os) const;
+
+    bool isInitialized() const;
+
+    static NodeValue deserialize(std::istream& stream);
 };
 
 inline
-std::ostream& operator<<(std::ostream& os, const NodeValue& value)
-{
-    value.print(os);
-
-    return os;
+bool NodeValue::isInitialized() const {
+    return !std::holds_alternative<bool>(m_value);
 }
 
 #endif //TREE_SERIALIZATION_NODEVALUE_H
