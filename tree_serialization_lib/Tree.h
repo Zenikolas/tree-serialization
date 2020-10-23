@@ -6,12 +6,13 @@
 #include <memory>
 
 class Tree {
+    void traverse(std::shared_ptr<Node> root);
 public:
     static std::shared_ptr<Node> deserialize(std::string_view inputFile);
 
     static bool serialize(std::string_view outFile);
 
-    static void print(std::shared_ptr<Node> root);
+    static void print(std::ostream& os, std::shared_ptr<Node> root);
 };
 
 #endif //TREE_SERIALIZATION_TREE_H

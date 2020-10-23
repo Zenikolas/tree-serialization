@@ -12,3 +12,4 @@
     - add test
     - add description to methods
     - add CMD parsing
+    - diplay strings with quotes

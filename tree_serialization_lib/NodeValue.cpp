@@ -32,21 +32,23 @@ namespace {
     }
 
 
-    void print(std::ostream &os, int value) {
-        os << htonl(value);
+    void serialize(std::ostream &os, int value) {
+        value = htonl(value);
+        os.write(reinterpret_cast<char*>(&value), sizeof value);
     }
 
-    void print(std::ostream &os, double value) {
-        os << htonll(reinterpret_cast<uint64_t &>(value));
+    void serialize(std::ostream &os, double value) {
+        uint64_t uintValue = htonll(reinterpret_cast<uint64_t &>(value));
+        os.write(reinterpret_cast<char*>(&uintValue), sizeof uintValue);
     }
 
-    void print(std::ostream &os, const std::string &value) {
+    void serialize(std::ostream &os, const std::string &value) {
         os << value;
     }
 
     NodeValue extractInt(std::istream &istream) {
         uint32_t valueUnsigned;
-        istream >> valueUnsigned;
+        istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
         valueUnsigned = ntohl(valueUnsigned);
         if (istream.bad() || istream.fail()) {
             return NodeValue();
@@ -60,6 +62,7 @@ namespace {
     }
 
     NodeValue extractString(std::istream &istream) {
+        //todo read by bytes count!
         assert(false && "not implemented");
     }
 }
@@ -80,7 +83,8 @@ void NodeValue::printTypeAndSize(std::ostream &os, Type type) const {
     os << static_cast<uint8_t>(type);
     if (type == NodeValue::STRING_TYPE) {
         auto &strRef = std::get<std::string>(m_value);
-        os << strRef.size();
+        uint64_t size = htonll(strRef.size());
+        os.write(reinterpret_cast<char*>(&size),sizeof(size));
     }
 }
 
@@ -100,13 +104,13 @@ void NodeValue::serialize(std::ostream &os) const {
 
     switch (type) {
         case NodeValue::INT_TYPE:
-            ::print(os, std::get<int>(m_value));
+            ::serialize(os, std::get<int>(m_value));
             break;
         case NodeValue::DOUBLE_TYPE:
-            ::print(os, std::get<double>(m_value));
+            ::serialize(os, std::get<double>(m_value));
             break;
         case NodeValue::STRING_TYPE:
-            ::print(os, std::get<std::string>(m_value));
+            ::serialize(os, std::get<std::string>(m_value));
             break;
         default:
             std::cerr << "Unsupported type to serialize: " << type << std::endl;

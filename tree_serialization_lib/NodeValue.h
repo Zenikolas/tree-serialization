@@ -20,9 +20,9 @@ class NodeValue {
 public:
     NodeValue() = default;
 
-    NodeValue(int value) : m_value(value) {}
-    NodeValue(double value) : m_value(value) {}
-    NodeValue(std::string_view str) : m_value(str.data()) {}
+    explicit NodeValue(int value) : m_value(value) {}
+    explicit NodeValue(double value) : m_value(value) {}
+    explicit NodeValue(const std::string& str) : m_value(str) {}
 
     void print(std::ostream& os) const;
 
@@ -36,6 +36,13 @@ public:
 inline
 bool NodeValue::isInitialized() const {
     return !std::holds_alternative<bool>(m_value);
+}
+
+inline
+std::ostream& operator<<(std::ostream& os, const NodeValue& value) {
+    value.print(os);
+
+    return os;
 }
 
 #endif //TREE_SERIALIZATION_NODEVALUE_H
