@@ -49,21 +49,40 @@ namespace {
     NodeValue extractInt(std::istream &istream) {
         uint32_t valueUnsigned;
         istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
-        valueUnsigned = ntohl(valueUnsigned);
         if (istream.bad() || istream.fail()) {
             return NodeValue();
         }
 
+        valueUnsigned = ntohl(valueUnsigned);
         return NodeValue(static_cast<int>(valueUnsigned));
     }
 
     NodeValue extractDouble(std::istream &istream) {
-        assert(false && "not implemented");
+        uint64_t valueUnsigned;
+        istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
+        if (istream.bad() || istream.fail()) { // todo: add this kind of check in all reading stream
+            return NodeValue();
+        }
+
+        valueUnsigned = htonll(valueUnsigned);
+        return NodeValue(reinterpret_cast<double&>(valueUnsigned));
     }
 
     NodeValue extractString(std::istream &istream) {
-        //todo read by bytes count!
-        assert(false && "not implemented");
+        uint64_t size;
+        istream.read(reinterpret_cast<char*>(&size), sizeof(size));
+        if (istream.bad() || istream.fail()) {
+            return NodeValue();
+        }
+
+        size = htonll(size);
+        char buffer[size];
+        istream.read(buffer, size);
+        if (istream.bad() || istream.fail()) {
+            return NodeValue();
+        }
+
+        return NodeValue(std::string(buffer, size));
     }
 }
 

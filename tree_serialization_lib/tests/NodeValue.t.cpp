@@ -3,35 +3,6 @@
 
 #include "NodeValue.h"
 
-TEST(NodeValueTest, IntTest)
-{
-    NodeValue value(100);
-
-    std::stringstream sstream;
-    value.serialize(sstream);
-
-    uint8_t type;
-    int check_value;
-    sstream.read(reinterpret_cast<char*>(&type), sizeof(type));
-    ASSERT_EQ(0, type);
-    sstream.read(reinterpret_cast<char*>(&check_value), sizeof(check_value));
-    ASSERT_EQ(check_value, htonl(100));
-
-    std::stringstream pStream;
-    value.print(pStream);
-    ASSERT_EQ(std::string("100"), pStream.str());
-
-    sstream = std::stringstream();
-    value.serialize(sstream);
-    NodeValue dvalue = NodeValue::deserialize(sstream);
-    ASSERT_TRUE(dvalue.isInitialized());
-
-    std::stringstream dStream;
-    dvalue.print(dStream);
-    ASSERT_EQ(std::string("100"), dStream.str());
-
-}
-
 namespace {
     unsigned long long htonll(uint64_t src) {
         enum {
@@ -60,6 +31,61 @@ namespace {
     }
 }
 
+TEST(NodeValueTest, IntTest)
+{
+    NodeValue value(100);
+
+    std::stringstream sstream;
+    value.serialize(sstream);
+
+    uint8_t type;
+    int check_value;
+    sstream.read(reinterpret_cast<char*>(&type), sizeof(type));
+    ASSERT_EQ(0, type);
+    sstream.read(reinterpret_cast<char*>(&check_value), sizeof(check_value));
+    ASSERT_EQ(check_value, htonl(100));
+
+    std::stringstream pStream;
+    value.print(pStream);
+    ASSERT_EQ(std::string("100"), pStream.str());
+
+    sstream = std::stringstream();
+    value.serialize(sstream);
+    NodeValue dvalue = NodeValue::deserialize(sstream);
+    ASSERT_TRUE(dvalue.isInitialized());
+    ASSERT_EQ(value, dvalue);
+}
+
+TEST(NodeValueTest, DoubleTest)
+{
+    double expectedValue = 100.87662;
+    NodeValue value(expectedValue);
+
+    std::stringstream sstream;
+    value.serialize(sstream);
+
+    uint8_t type;
+    double check_value;
+    sstream.read(reinterpret_cast<char*>(&type), sizeof(type));
+    ASSERT_EQ(1, type);
+    uint64_t unsignedCopyOfDouble;
+    sstream.read(reinterpret_cast<char*>(&unsignedCopyOfDouble), sizeof(unsignedCopyOfDouble));
+    unsignedCopyOfDouble = htonll(unsignedCopyOfDouble);
+    check_value = reinterpret_cast<double&>(unsignedCopyOfDouble);
+    ASSERT_DOUBLE_EQ(check_value, expectedValue);
+
+    std::stringstream pStream;
+    value.print(pStream);
+    double printedValue = stod(pStream.str());
+    ASSERT_DOUBLE_EQ(100.877, printedValue); // by default double precision is 3 digits
+
+    sstream = std::stringstream();
+    value.serialize(sstream);
+    NodeValue dvalue = NodeValue::deserialize(sstream);
+    ASSERT_TRUE(dvalue.isInitialized());
+    ASSERT_EQ(value, dvalue);
+}
+
 TEST(NodeValueTest, StringTest)
 {
     const std::string expectedString = "100dqwdw90.876";
@@ -69,7 +95,6 @@ TEST(NodeValueTest, StringTest)
     value.serialize(sstream);
     uint8_t type;
     uint64_t size;
-    auto temp = sstream.str();
     sstream.read(reinterpret_cast<char*>(&type), sizeof(type));
     ASSERT_EQ(2, type);
 
@@ -85,14 +110,9 @@ TEST(NodeValueTest, StringTest)
     value.print(pStream);
     ASSERT_EQ(expectedString, pStream.str());
 
-// todo uncomment this when deserialize will be implemented
-//    sstream = std::stringstream();
-//    value.serialize(sstream);
-//    NodeValue dvalue = NodeValue::deserialize(sstream);
-//    ASSERT_TRUE(dvalue.isInitialized());
-//
-//    std::stringstream dStream;
-//    dvalue.print(dStream);
-//    ASSERT_EQ(expectedString, dStream.str());
-
+    sstream = std::stringstream();
+    value.serialize(sstream);
+    NodeValue dvalue = NodeValue::deserialize(sstream);
+    ASSERT_TRUE(dvalue.isInitialized());
+    ASSERT_EQ(value, dvalue);
 }
