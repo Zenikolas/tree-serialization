@@ -17,11 +17,31 @@ public:
     std::vector<std::shared_ptr<Node>> m_childs;
 
     void print(std::ostream& os) const;
+
+    void serialize(std::ostream& os) const;
+    static std::unique_ptr<Node> deserialize(std::istream& stream);
 };
 
 inline
 void Node::print(std::ostream &os) const {
     m_value.print(os);
+}
+
+inline
+void Node::serialize(std::ostream &os) const {
+    m_value.serialize(os);
+}
+
+inline
+std::unique_ptr<Node> Node::deserialize(std::istream &stream) {
+    NodeValue nodeValue = NodeValue::deserialize(stream);
+    if (!nodeValue.isInitialized()) {
+        return nullptr;
+    }
+
+    auto ret = std::make_unique<Node>();
+    ret->m_value = std::move(nodeValue);
+    return ret;
 }
 
 inline

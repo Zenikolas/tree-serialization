@@ -13,3 +13,7 @@
     - add description to methods
     - add CMD parsing
     - diplay strings with quotes
+    - add description of application
+    - add build, coverage, tests status
+    - add doxygen
+    - flush cout

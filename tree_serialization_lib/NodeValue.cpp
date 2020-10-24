@@ -43,7 +43,7 @@ namespace {
     }
 
     void serialize(std::ostream &os, const std::string &value) {
-        os << value;
+        os << value; //todo write
     }
 
     NodeValue extractInt(std::istream &istream) {
@@ -80,7 +80,7 @@ NodeValue::Type NodeValue::getType() const {
 }
 
 void NodeValue::printTypeAndSize(std::ostream &os, Type type) const {
-    os << static_cast<uint8_t>(type);
+    os << static_cast<uint8_t>(type); //todo write
     if (type == NodeValue::STRING_TYPE) {
         auto &strRef = std::get<std::string>(m_value);
         uint64_t size = htonll(strRef.size());
@@ -137,7 +137,7 @@ NodeValue NodeValue::deserialize(std::istream &stream) {
         case NodeValue::STRING_TYPE:
             return extractString(stream);
         default:
-            std::cerr << "Unsupported type to extract from string: " << type << std::endl;
+            std::cerr << "Unsupported type to extract from string: " << (uint8_t)type << std::endl;
             break;
     }
 

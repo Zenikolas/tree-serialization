@@ -16,21 +16,32 @@ class NodeValue {
     };
 
     Type getType() const;
-    void printTypeAndSize(std::ostream& os, Type type) const;
+
+    void printTypeAndSize(std::ostream &os, Type type) const;
+
 public:
     NodeValue() = default;
 
+    NodeValue(const NodeValue &) = default;
+
+    NodeValue(NodeValue &&) = default;
+
+    NodeValue& operator=(const NodeValue&) = default;
+    NodeValue& operator=(NodeValue&&) = default;
+
     explicit NodeValue(int value) : m_value(value) {}
+
     explicit NodeValue(double value) : m_value(value) {}
-    explicit NodeValue(const std::string& str) : m_value(str) {}
 
-    void print(std::ostream& os) const;
+    explicit NodeValue(const std::string &str) : m_value(str) {}
 
-    void serialize(std::ostream& os) const;
+    void print(std::ostream &os) const;
+
+    void serialize(std::ostream &os) const;
 
     bool isInitialized() const;
 
-    static NodeValue deserialize(std::istream& stream);
+    static NodeValue deserialize(std::istream &stream);
 };
 
 inline
@@ -39,7 +50,7 @@ bool NodeValue::isInitialized() const {
 }
 
 inline
-std::ostream& operator<<(std::ostream& os, const NodeValue& value) {
+std::ostream &operator<<(std::ostream &os, const NodeValue &value) {
     value.print(os);
 
     return os;
