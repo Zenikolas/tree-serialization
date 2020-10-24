@@ -19,6 +19,9 @@ class NodeValue {
 
     void printTypeAndSize(std::ostream &os, Type type) const;
 
+    friend
+    bool operator==(const NodeValue &lhs, const NodeValue &rhs);
+
 public:
     NodeValue() = default;
 
@@ -54,6 +57,11 @@ std::ostream &operator<<(std::ostream &os, const NodeValue &value) {
     value.print(os);
 
     return os;
+}
+
+inline
+bool operator==(const NodeValue &lhs, const NodeValue &rhs) {
+    return lhs.m_value == rhs.m_value;
 }
 
 #endif //TREE_SERIALIZATION_NODEVALUE_H

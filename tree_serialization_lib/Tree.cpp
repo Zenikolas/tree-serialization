@@ -1,34 +1,11 @@
 #include <queue>
 #include <iostream>
 #include <stack>
-#include <fstream>
 #include <cassert>
+
 #include "Tree.h"
 
-void Tree::traverse(std::shared_ptr<Node> root) {
-    std::queue<std::shared_ptr<Node>> qq;
-    qq.push(root);
-    qq.push(nullptr);
-
-    while (!qq.empty()) {
-        std::shared_ptr<Node> current = qq.front();
-        qq.pop();
-
-        if (!current) {
-            std::cout << "\n";
-            continue;
-        }
-
-        std::cout << *current;
-
-        for (auto &child : current->m_childs) {
-            qq.push(child);
-        }
-    }
-}
-
-std::unique_ptr<Node> getNodeFromStream(std::istream &ifs)
-{
+std::unique_ptr<Node> getNodeFromStream(std::istream &ifs) {
     char message;
     ifs >> message;
     if (message == '/') {
@@ -47,7 +24,7 @@ std::shared_ptr<Node> Tree::deserialize(std::istream &ifs) {
     stack.push(root);
 
     while (!stack.empty()) {
-        auto& top = stack.top();
+        auto &top = stack.top();
         assert(top);
 
         std::shared_ptr<Node> child = getNodeFromStream(ifs);
@@ -125,15 +102,30 @@ bool Tree::serialize(std::ostream &os, std::shared_ptr<Node> root) {
             top.visited = true;
         }
 
-//        top.node->print(os);
         os << '+';
         top.node->serialize(os);
-        std::vector<std::shared_ptr<Node>> &childs = top.node->m_childs; //todo make auto
-
+        auto &childs = top.node->m_childs;
         for (auto it = childs.rbegin(); it != childs.rend(); ++it) {
             stack.push({*it, false});
         }
     }
 
     return true;
+}
+
+
+void Tree::traverseNLR(std::shared_ptr<Node> root, const std::function<void(Node *)> &func) {
+    std::queue<std::shared_ptr<Node>> qq;
+    qq.push(root);
+
+    while (!qq.empty()) {
+        std::shared_ptr<Node> current = qq.front();
+        qq.pop();
+
+        func(current.get());
+
+        for (auto &child : current->m_childs) {
+            qq.push(child);
+        }
+    }
 }

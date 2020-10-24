@@ -8,18 +8,25 @@
 
 class Node {
     NodeValue m_value;
+
+    friend
+    bool operator==(const Node &lhs, const Node &rhs);
 public:
     Node() = default;
+
     explicit Node(int value) : m_value(value) {}
+
     explicit Node(double value) : m_value(value) {}
-    explicit Node(const std::string& value) : m_value(value) {}
+
+    explicit Node(const std::string &value) : m_value(value) {}
 
     std::vector<std::shared_ptr<Node>> m_childs;
 
-    void print(std::ostream& os) const;
+    void print(std::ostream &os) const;
 
-    void serialize(std::ostream& os) const;
-    static std::unique_ptr<Node> deserialize(std::istream& stream);
+    void serialize(std::ostream &os) const;
+
+    static std::unique_ptr<Node> deserialize(std::istream &stream);
 };
 
 inline
@@ -45,10 +52,16 @@ std::unique_ptr<Node> Node::deserialize(std::istream &stream) {
 }
 
 inline
-std::ostream& operator<<(std::ostream& os, const Node& value) {
+std::ostream &operator<<(std::ostream &os, const Node &value) {
     value.print(os);
 
     return os;
 }
+
+inline
+bool operator==(const Node &lhs, const Node &rhs) {
+    return lhs.m_value == rhs.m_value;
+}
+
 
 #endif //TREE_SERIALIZATION_NODE_H
