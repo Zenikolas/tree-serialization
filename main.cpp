@@ -12,7 +12,7 @@ int main() {
         return 1;
     }
 
-    Tree::print(root);
+    Tree::print(std::cout, root);
 
     if (!Tree::serialize(outfileFile)) {
         std::cerr << "Failed to serialize tree to file: " << outfileFile << std::endl;

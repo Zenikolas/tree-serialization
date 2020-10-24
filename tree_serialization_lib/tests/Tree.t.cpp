@@ -3,8 +3,7 @@
 #include <gtest/gtest.h>
 
 
-TEST(TreeTest, Print)
-{
+TEST(TreeTest, Print) {
 
     auto root = std::make_shared<Node>("8766");
     root->m_childs.emplace_back(std::make_shared<Node>(100));
@@ -26,18 +25,25 @@ TEST(TreeTest, Print)
     std::stringstream sstream;
     Tree::print(sstream, root);
 
-    std::cout << sstream.str() << std::endl;
+    std::vector<std::string> lines = {
+            "+ 8766",
+            "\t+ 100",
+            "\t|\t+ 786",
+            "\t|\t+ 12.12",
+            "\t+ 90.2",
+            "\t|\t+ 12.42",
+            "\t|\t+ 1222ff",
+            "\t|\t+ ddqq22",
+            "\t|\t+ 1222ff",
+            "\t+ qwdqwd",
+            "\t|\t+ 29.23",
+            "\t+ 9"
+    };
     std::string line;
-
-//    std::getline(sstream, line);
-//    ASSERT_EQ(std::string("8766"), line);
-//
-//    std::getline(sstream, line);
-//    ASSERT_EQ(std::string("100 90.2 qwdqwd 9"), line);
-//
-//    std::getline(sstream, line);
-//    ASSERT_EQ(std::string("786 12.12"), line);
-//
-//    std::getline(sstream, line);
-//    ASSERT_EQ(std::string("12.42 1222ff ddqq22"), line);
+    size_t i = 0;
+    while (std::getline(sstream, line)) {
+        ASSERT_LE(i , lines.size());
+        ASSERT_EQ(lines[i], line);
+        ++i;
+    }
 }
