@@ -21,8 +21,6 @@ protected:
         m_root->m_childs[1]->m_childs.emplace_back(std::make_shared<Node>("ddqq22"));
 
         m_root->m_childs[2]->m_childs.emplace_back(std::make_shared<Node>("29.23"));
-
-        m_root->m_childs[1]->m_childs.emplace_back(std::make_shared<Node>("1222ff"));
     }
 };
 
@@ -39,7 +37,6 @@ TEST_F(TreeTest, Print) {
             "\t|\t+ 12.42",
             "\t|\t+ 1222ff",
             "\t|\t+ ddqq22",
-            "\t|\t+ 1222ff",
             "\t+ qwdqwd",
             "\t|\t+ 29.23",
             "\t+ 9"
@@ -55,7 +52,22 @@ TEST_F(TreeTest, Print) {
 
 TEST_F(TreeTest, Traverse)
 {
-    //todo
+    std::vector<Node*> expectedNodes;
+    expectedNodes.emplace_back(m_root.get());
+    expectedNodes.emplace_back(m_root->m_childs[0].get());
+    expectedNodes.emplace_back(m_root->m_childs[1].get());
+    expectedNodes.emplace_back(m_root->m_childs[2].get());
+    expectedNodes.emplace_back(m_root->m_childs[3].get());
+    expectedNodes.emplace_back(m_root->m_childs[0]->m_childs[0].get());
+    expectedNodes.emplace_back(m_root->m_childs[0]->m_childs[1].get());
+    expectedNodes.emplace_back(m_root->m_childs[1]->m_childs[0].get());
+    expectedNodes.emplace_back(m_root->m_childs[1]->m_childs[1].get());
+    expectedNodes.emplace_back(m_root->m_childs[1]->m_childs[2].get());
+    expectedNodes.emplace_back(m_root->m_childs[2]->m_childs[0].get());
+
+    std::vector<Node*> resultNodes;
+    Tree::traverseNLR(m_root, [&resultNodes](Node* node){resultNodes.emplace_back(node);});
+    ASSERT_EQ(expectedNodes, resultNodes);
 }
 
 TEST_F(TreeTest, Serialize) {
