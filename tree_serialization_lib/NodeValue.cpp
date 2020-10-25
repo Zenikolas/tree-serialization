@@ -2,54 +2,32 @@
 
 #include <arpa/inet.h>
 #include <iostream>
-#include <cassert>
+
+#include "Util.h"
 
 namespace {
-    unsigned long long htonll(uint64_t src) {
-        enum {
-            INIT_TYPE = 0,
-            LE_TYPE,
-            BE_TYPE
-        };
-
-        static int type = INIT_TYPE;
-        union {
-            unsigned long long ull;
-            unsigned char c[8];
-        } x;
-        if (type == INIT_TYPE) {
-            x.ull = 0x01;
-            type = (x.c[7] == 0x01ULL) ? BE_TYPE : LE_TYPE;
-        }
-        if (type == BE_TYPE)
-            return src;
-        x.ull = src;
-        std::swap(x.c[0], x.c[7]);
-        std::swap(x.c[1], x.c[6]);
-        std::swap(x.c[2], x.c[5]);
-        std::swap(x.c[3], x.c[4]);
-        return x.ull;
-    }
-
-
     void serialize(std::ostream &os, int value) {
         value = htonl(value);
-        os.write(reinterpret_cast<char*>(&value), sizeof value);
+        os.write(reinterpret_cast<char *>(&value), sizeof value);
     }
 
     void serialize(std::ostream &os, double value) {
-        uint64_t uintValue = htonll(reinterpret_cast<uint64_t &>(value));
-        os.write(reinterpret_cast<char*>(&uintValue), sizeof uintValue);
+        uint64_t uintValue = util::htonll(reinterpret_cast<uint64_t &>(value));
+        os.write(reinterpret_cast<char *>(&uintValue), sizeof uintValue);
     }
 
     void serialize(std::ostream &os, const std::string &value) {
-        os << value; //todo write
+        os.write(value.c_str(), value.size());
+    }
+
+    bool streamValid(std::ios& os) {
+        return !os.bad() && !os.fail();
     }
 
     NodeValue extractInt(std::istream &istream) {
         uint32_t valueUnsigned;
-        istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
-        if (istream.bad() || istream.fail()) {
+        istream.read(reinterpret_cast<char *>(&valueUnsigned), sizeof(valueUnsigned));
+        if (!streamValid(istream)) {
             return NodeValue();
         }
 
@@ -59,26 +37,26 @@ namespace {
 
     NodeValue extractDouble(std::istream &istream) {
         uint64_t valueUnsigned;
-        istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
-        if (istream.bad() || istream.fail()) { // todo: add this kind of check in all reading stream
+        istream.read(reinterpret_cast<char *>(&valueUnsigned), sizeof(valueUnsigned));
+        if (!streamValid(istream)) {
             return NodeValue();
         }
 
-        valueUnsigned = htonll(valueUnsigned);
-        return NodeValue(reinterpret_cast<double&>(valueUnsigned));
+        valueUnsigned = util::htonll(valueUnsigned);
+        return NodeValue(reinterpret_cast<double &>(valueUnsigned));
     }
 
     NodeValue extractString(std::istream &istream) {
         uint64_t size;
-        istream.read(reinterpret_cast<char*>(&size), sizeof(size));
-        if (istream.bad() || istream.fail()) {
+        istream.read(reinterpret_cast<char *>(&size), sizeof(size));
+        if (!istream.good()) {
             return NodeValue();
         }
 
-        size = htonll(size);
+        size = util::htonll(size);
         char buffer[size];
         istream.read(buffer, size);
-        if (istream.bad() || istream.fail()) {
+        if (!streamValid(istream)) {
             return NodeValue();
         }
 
@@ -99,11 +77,11 @@ NodeValue::Type NodeValue::getType() const {
 }
 
 void NodeValue::printTypeAndSize(std::ostream &os, Type type) const {
-    os << static_cast<uint8_t>(type); //todo write
+    os.write(reinterpret_cast<char *>(&type), sizeof(type));
     if (type == NodeValue::STRING_TYPE) {
         auto &strRef = std::get<std::string>(m_value);
-        uint64_t size = htonll(strRef.size());
-        os.write(reinterpret_cast<char*>(&size),sizeof(size));
+        uint64_t size = util::htonll(strRef.size());
+        os.write(reinterpret_cast<char *>(&size), sizeof(size));
     }
 }
 
@@ -137,26 +115,26 @@ void NodeValue::serialize(std::ostream &os) const {
     }
 }
 
-NodeValue NodeValue::deserialize(std::istream &stream) {
-    if (stream.eof()) {
+NodeValue NodeValue::deserialize(std::istream &istream) {
+    if (istream.eof()) {
         std::cerr << "Invalid buffer for representation NodeValue" << std::endl;
         return NodeValue();
     }
 
     uint8_t type;
-    stream >> type;
-    if (stream.bad() || stream.fail()) {
+    istream.read(reinterpret_cast<char*>(&type), sizeof(type));
+    if (!istream.good()) {
         return NodeValue();
     }
     switch (static_cast<Type>(type)) {
         case NodeValue::INT_TYPE:
-            return extractInt(stream);
+            return extractInt(istream);
         case NodeValue::DOUBLE_TYPE:
-            return extractDouble(stream);
+            return extractDouble(istream);
         case NodeValue::STRING_TYPE:
-            return extractString(stream);
+            return extractString(istream);
         default:
-            std::cerr << "Unsupported type to extract from string: " << (uint8_t)type << std::endl;
+            std::cerr << "Unsupported type to extract from string: " << (uint8_t) type << std::endl;
             break;
     }
 

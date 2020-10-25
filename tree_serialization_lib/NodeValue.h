@@ -42,9 +42,9 @@ public:
 
     void serialize(std::ostream &os) const;
 
-    bool isInitialized() const;
+    [[nodiscard]] bool isInitialized() const;
 
-    static NodeValue deserialize(std::istream &stream);
+    static NodeValue deserialize(std::istream &istream);
 };
 
 inline

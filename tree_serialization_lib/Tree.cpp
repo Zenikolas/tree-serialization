@@ -7,8 +7,8 @@
 
 std::unique_ptr<Node> getNodeFromStream(std::istream &ifs) {
     char message;
-    ifs >> message;
-    if (message == '/') {
+    ifs.read(reinterpret_cast<char*>(&message), sizeof(message));
+    if (!ifs.good() || message == '/') {
         return nullptr;
     }
 
@@ -33,14 +33,14 @@ std::shared_ptr<Node> Tree::deserialize(std::istream &ifs) {
             continue;
         }
 
-        top->m_childs.emplace_back(child);
+        top->appendChild(child);
         stack.push(child);
     }
 
     return root;
 }
 
-void Tree::print(std::ostream &os, std::shared_ptr<Node> root) {
+void Tree::print(std::ostream &os, const std::shared_ptr<Node>& root) {
     struct TreeNode {
         std::shared_ptr<Node> node;
         std::string intend;
@@ -54,7 +54,7 @@ void Tree::print(std::ostream &os, std::shared_ptr<Node> root) {
         stack.pop();
 
         os << top.intend << "+ " << *top.node << "\n";
-        std::vector<std::shared_ptr<Node>> &childs = top.node->m_childs;
+        auto &childs = top.node->getChilds();
         if (childs.empty()) {
             continue;
         }
@@ -73,7 +73,7 @@ void Tree::print(std::ostream &os, std::shared_ptr<Node> root) {
     }
 }
 
-bool Tree::serialize(std::ostream &os, std::shared_ptr<Node> root) {
+bool Tree::serialize(std::ostream &os, const std::shared_ptr<Node>& root) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return false;
@@ -95,16 +95,16 @@ bool Tree::serialize(std::ostream &os, std::shared_ptr<Node> root) {
         }
 
         if (top.visited) {
-            os << '/';
+            os.write("/", 1);
             stack.pop();
             continue;
         } else {
             top.visited = true;
         }
 
-        os << '+';
+        os.write("+", 1);
         top.node->serialize(os);
-        auto &childs = top.node->m_childs;
+        auto &childs = top.node->getChilds();
         for (auto it = childs.rbegin(); it != childs.rend(); ++it) {
             stack.push({*it, false});
         }
@@ -114,7 +114,7 @@ bool Tree::serialize(std::ostream &os, std::shared_ptr<Node> root) {
 }
 
 
-void Tree::traverseNLR(std::shared_ptr<Node> root, const std::function<void(Node *)> &func) {
+void Tree::traverseNLR(const std::shared_ptr<Node>& root, const std::function<void(Node *)> &func) {
     std::queue<std::shared_ptr<Node>> qq;
     qq.push(root);
 
@@ -124,7 +124,7 @@ void Tree::traverseNLR(std::shared_ptr<Node> root, const std::function<void(Node
 
         func(current.get());
 
-        for (auto &child : current->m_childs) {
+        for (auto &child : current->getChilds()) {
             qq.push(child);
         }
     }

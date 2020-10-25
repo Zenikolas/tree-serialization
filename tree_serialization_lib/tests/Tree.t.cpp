@@ -8,19 +8,19 @@ protected:
 
     TreeTest() {
         m_root = std::make_shared<Node>("8766");
-        m_root->m_childs.emplace_back(std::make_shared<Node>(100));
-        m_root->m_childs.emplace_back(std::make_shared<Node>(90.2));
-        m_root->m_childs.emplace_back(std::make_shared<Node>("qwdqwd"));
-        m_root->m_childs.emplace_back(std::make_shared<Node>(9));
+        m_root->appendChild(std::make_shared<Node>(100));
+        m_root->appendChild(std::make_shared<Node>(90.2));
+        m_root->appendChild(std::make_shared<Node>("qwdqwd"));
+        m_root->appendChild(std::make_shared<Node>(9));
 
-        m_root->m_childs[0]->m_childs.emplace_back(std::make_shared<Node>(786));
-        m_root->m_childs[0]->m_childs.emplace_back(std::make_shared<Node>(12.12));
+        m_root->getChilds()[0]->appendChild(std::make_shared<Node>(786));
+        m_root->getChilds()[0]->appendChild(std::make_shared<Node>(12.12));
 
-        m_root->m_childs[1]->m_childs.emplace_back(std::make_shared<Node>(12.42));
-        m_root->m_childs[1]->m_childs.emplace_back(std::make_shared<Node>("1222ff"));
-        m_root->m_childs[1]->m_childs.emplace_back(std::make_shared<Node>("ddqq22"));
+        m_root->getChilds()[1]->appendChild(std::make_shared<Node>(12.42));
+        m_root->getChilds()[1]->appendChild(std::make_shared<Node>("1222ff"));
+        m_root->getChilds()[1]->appendChild(std::make_shared<Node>("ddqq22"));
 
-        m_root->m_childs[2]->m_childs.emplace_back(std::make_shared<Node>("29.23"));
+        m_root->getChilds()[2]->appendChild(std::make_shared<Node>("29.23"));
     }
 };
 
@@ -54,16 +54,16 @@ TEST_F(TreeTest, Traverse)
 {
     std::vector<Node*> expectedNodes;
     expectedNodes.emplace_back(m_root.get());
-    expectedNodes.emplace_back(m_root->m_childs[0].get());
-    expectedNodes.emplace_back(m_root->m_childs[1].get());
-    expectedNodes.emplace_back(m_root->m_childs[2].get());
-    expectedNodes.emplace_back(m_root->m_childs[3].get());
-    expectedNodes.emplace_back(m_root->m_childs[0]->m_childs[0].get());
-    expectedNodes.emplace_back(m_root->m_childs[0]->m_childs[1].get());
-    expectedNodes.emplace_back(m_root->m_childs[1]->m_childs[0].get());
-    expectedNodes.emplace_back(m_root->m_childs[1]->m_childs[1].get());
-    expectedNodes.emplace_back(m_root->m_childs[1]->m_childs[2].get());
-    expectedNodes.emplace_back(m_root->m_childs[2]->m_childs[0].get());
+    expectedNodes.emplace_back(m_root->getChilds()[0].get());
+    expectedNodes.emplace_back(m_root->getChilds()[1].get());
+    expectedNodes.emplace_back(m_root->getChilds()[2].get());
+    expectedNodes.emplace_back(m_root->getChilds()[3].get());
+    expectedNodes.emplace_back(m_root->getChilds()[0]->getChilds()[0].get());
+    expectedNodes.emplace_back(m_root->getChilds()[0]->getChilds()[1].get());
+    expectedNodes.emplace_back(m_root->getChilds()[1]->getChilds()[0].get());
+    expectedNodes.emplace_back(m_root->getChilds()[1]->getChilds()[1].get());
+    expectedNodes.emplace_back(m_root->getChilds()[1]->getChilds()[2].get());
+    expectedNodes.emplace_back(m_root->getChilds()[2]->getChilds()[0].get());
 
     std::vector<Node*> resultNodes;
     Tree::traverseNLR(m_root, [&resultNodes](Node* node){resultNodes.emplace_back(node);});

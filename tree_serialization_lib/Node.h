@@ -8,9 +8,11 @@
 
 class Node {
     NodeValue m_value;
+    std::vector<std::shared_ptr<Node>> m_childs;
 
     friend
     bool operator==(const Node &lhs, const Node &rhs);
+
 public:
     Node() = default;
 
@@ -20,14 +22,22 @@ public:
 
     explicit Node(const std::string &value) : m_value(value) {}
 
-    std::vector<std::shared_ptr<Node>> m_childs;
+    const std::vector<std::shared_ptr<Node>> &getChilds() const;
 
     void print(std::ostream &os) const;
 
     void serialize(std::ostream &os) const;
 
+    void appendChild(const std::shared_ptr<Node> &node);
+
+    void appendChild(std::shared_ptr<Node> &&node);
+
     static std::unique_ptr<Node> deserialize(std::istream &stream);
 };
+
+inline const std::vector<std::shared_ptr<Node>> &Node::getChilds() const {
+    return m_childs;
+}
 
 inline
 void Node::print(std::ostream &os) const {
@@ -37,6 +47,16 @@ void Node::print(std::ostream &os) const {
 inline
 void Node::serialize(std::ostream &os) const {
     m_value.serialize(os);
+}
+
+inline
+void Node::appendChild(const std::shared_ptr<Node> &node) {
+    m_childs.emplace_back(node);
+}
+
+inline
+void Node::appendChild(std::shared_ptr<Node> &&node) {
+    m_childs.emplace_back(std::move(node));
 }
 
 inline
