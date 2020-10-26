@@ -4,7 +4,7 @@
 
 /*!
 \file
-\brief contains class Tree which provides method to manipulate trees
+\brief Contains class Tree which provides method to manipulate trees
 \author Nikolay Zemtsovskiy
 
 Tree class provides mechanism to manage trees: serialise, de-serialise, traverse and print

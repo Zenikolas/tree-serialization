@@ -1,3 +1,15 @@
+/*!
+\file
+\brief cmd application demonstrating how serialisation for trees works
+\author Nikolay Zemtsovskiy
+
+ Application does the following:
+  1. reads the input file containing the serialized tree
+  2. deserializes the tree
+  3. prints the tree to stdout
+  4. serializes the tree to the output file
+*/
+
 #include <iostream>
 #include <memory>
 #include <fstream>

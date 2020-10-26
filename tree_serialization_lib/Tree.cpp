@@ -54,7 +54,7 @@ void Tree::print(std::ostream &os, const std::shared_ptr<Node>& root) {
         stack.pop();
 
         os << top.intend << "+ " << *top.node << "\n";
-        auto &childs = top.node->getChilds();
+        auto &childs = top.node->getChildes();
         if (childs.empty()) {
             continue;
         }
@@ -104,7 +104,7 @@ bool Tree::serialize(std::ostream &os, const std::shared_ptr<Node>& root) {
 
         os.write("+", 1);
         top.node->serialize(os);
-        auto &childs = top.node->getChilds();
+        auto &childs = top.node->getChildes();
         for (auto it = childs.rbegin(); it != childs.rend(); ++it) {
             stack.push({*it, false});
         }
@@ -124,7 +124,7 @@ void Tree::traverseNLR(const std::shared_ptr<Node>& root, const std::function<vo
 
         func(current.get());
 
-        for (auto &child : current->getChilds()) {
+        for (auto &child : current->getChildes()) {
             qq.push(child);
         }
     }

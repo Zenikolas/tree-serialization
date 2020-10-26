@@ -1,3 +1,16 @@
+/*! \defgroup tree_serialization_lib Tree serialization library
+    @{
+*/
+
+/*!
+\file
+\brief Contains class NodeValue which provides mechanism to store and manipulate on
+ Node values
+\author Nikolay Zemtsovskiy
+
+The object of NodeValue class can store three different types of values:
+integer, floating number, string
+*/
 #ifndef TREE_SERIALIZATION_NODEVALUE_H
 #define TREE_SERIALIZATION_NODEVALUE_H
 
@@ -29,8 +42,9 @@ public:
 
     NodeValue(NodeValue &&) = default;
 
-    NodeValue& operator=(const NodeValue&) = default;
-    NodeValue& operator=(NodeValue&&) = default;
+    NodeValue &operator=(const NodeValue &) = default;
+
+    NodeValue &operator=(NodeValue &&) = default;
 
     explicit NodeValue(int value) : m_value(value) {}
 
@@ -38,12 +52,20 @@ public:
 
     explicit NodeValue(const std::string &str) : m_value(str) {}
 
+    /// Prints value to the given stream
     void print(std::ostream &os) const;
 
+    /// Serialise value to the given stream
     void serialize(std::ostream &os) const;
 
+    /// Returns true if the object holds the value and false otherwise
     [[nodiscard]] bool isInitialized() const;
 
+    /*!
+    De-serialise the value of the object from the given stream
+    \param[in] istream holding serialised NodeValue
+    \returns new created NodeValue object
+    */
     static NodeValue deserialize(std::istream &istream);
 };
 
@@ -65,3 +87,4 @@ bool operator==(const NodeValue &lhs, const NodeValue &rhs) {
 }
 
 #endif //TREE_SERIALIZATION_NODEVALUE_H
+/*! @} */

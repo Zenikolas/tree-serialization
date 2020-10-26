@@ -1,3 +1,12 @@
+/*! \defgroup tree_serialization_lib Tree serialization library
+    @{
+*/
+
+/*!
+\file
+\brief Contains class Node which is used for building nodes of the tree
+\author Nikolay Zemtsovskiy
+*/
 #ifndef TREE_SERIALIZATION_NODE_H
 #define TREE_SERIALIZATION_NODE_H
 
@@ -8,7 +17,7 @@
 
 class Node {
     NodeValue m_value;
-    std::vector<std::shared_ptr<Node>> m_childs;
+    std::vector<std::shared_ptr<Node>> m_childes;
 
     friend
     bool operator==(const Node &lhs, const Node &rhs);
@@ -22,21 +31,31 @@ public:
 
     explicit Node(const std::string &value) : m_value(value) {}
 
-    const std::vector<std::shared_ptr<Node>> &getChilds() const;
+    /// Returns non-modifiable vector of Node's childes
+    const std::vector<std::shared_ptr<Node>> &getChildes() const;
 
+    /// Prints Node to the given stream
     void print(std::ostream &os) const;
 
+    /// Serialise Node to the given stream
     void serialize(std::ostream &os) const;
 
+    /// Append a child to Node by copying pointer
     void appendChild(const std::shared_ptr<Node> &node);
 
+    /// Append a child to Node by moving pointer
     void appendChild(std::shared_ptr<Node> &&node);
 
+    /*!
+    De-serialise the object of Node from the given stream
+    \param[in] stream holding serialised NodeValue
+    \returns new created Node object
+    */
     static std::unique_ptr<Node> deserialize(std::istream &stream);
 };
 
-inline const std::vector<std::shared_ptr<Node>> &Node::getChilds() const {
-    return m_childs;
+inline const std::vector<std::shared_ptr<Node>> &Node::getChildes() const {
+    return m_childes;
 }
 
 inline
@@ -51,12 +70,12 @@ void Node::serialize(std::ostream &os) const {
 
 inline
 void Node::appendChild(const std::shared_ptr<Node> &node) {
-    m_childs.emplace_back(node);
+    m_childes.emplace_back(node);
 }
 
 inline
 void Node::appendChild(std::shared_ptr<Node> &&node) {
-    m_childs.emplace_back(std::move(node));
+    m_childes.emplace_back(std::move(node));
 }
 
 inline
@@ -85,3 +104,4 @@ bool operator==(const Node &lhs, const Node &rhs) {
 
 
 #endif //TREE_SERIALIZATION_NODE_H
+/*! @} */
