@@ -16,13 +16,19 @@ std::unique_ptr<Node> getNodeFromStream(std::istream &ifs) {
 }
 
 std::shared_ptr<Node> Tree::deserialize(std::istream &ifs) {
+    if (!ifs.good()) {
+        std::cerr << "invalid input stream is given for deserializing" << std::endl;
+        return nullptr;
+    }
     std::stack<std::shared_ptr<Node>> stack;
     std::shared_ptr<Node> root = getNodeFromStream(ifs);
     if (!root) {
+        std::cerr << "invalid first token in the given stream for deserializing"
+        << std::endl;
         return nullptr;
     }
-    stack.push(root);
 
+    stack.push(root);
     while (!stack.empty()) {
         auto &top = stack.top();
         assert(top);
@@ -41,6 +47,11 @@ std::shared_ptr<Node> Tree::deserialize(std::istream &ifs) {
 }
 
 void Tree::print(std::ostream &os, const std::shared_ptr<Node> &root) {
+    if (!root) {
+        std::cerr << "invalid root in the given tree!" << std::endl;
+        return;
+    }
+
     struct TreeNode {
         std::shared_ptr<Node> node;
         std::string intend;
@@ -118,6 +129,10 @@ bool Tree::serialize(std::ostream &os, const std::shared_ptr<Node> &root) {
 
 void Tree::traverseNLR(const std::shared_ptr<Node> &root,
                        const std::function<void(Node *)> &func) {
+    if (!root) {
+        std::cerr << "invalid root in the given tree!" << std::endl;
+        return;
+    }
     std::queue<std::shared_ptr<Node>> qq;
     qq.push(root);
 

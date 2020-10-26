@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <fstream>
+
 /// @cond DEV
 class TreeTest : public ::testing::Test {
 protected:
@@ -70,6 +72,25 @@ TEST_F(TreeTest, Traverse) {
     Tree::traverseNLR(m_root,
                       [&resultNodes](Node *node) { resultNodes.emplace_back(node); });
     ASSERT_EQ(expectedNodes, resultNodes);
+}
+
+TEST_F(TreeTest, NullTest) {
+    std::stringstream sstream;
+    ASSERT_FALSE(Tree::serialize(sstream, nullptr));
+    ASSERT_TRUE(sstream.good());
+    ASSERT_TRUE(sstream.str().empty());
+
+    Tree::print(sstream, nullptr);
+    ASSERT_TRUE(sstream.good());
+    ASSERT_TRUE(sstream.str().empty());
+
+    std::vector<Node *> resultNodes;
+    Tree::traverseNLR(nullptr,
+                      [&resultNodes](Node *node) { resultNodes.emplace_back(node); });
+    ASSERT_TRUE(resultNodes.empty());
+
+    std::ifstream ifs;
+    ASSERT_FALSE(Tree::deserialize(ifs));
 }
 
 TEST_F(TreeTest, Serialize) {
