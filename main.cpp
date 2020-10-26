@@ -19,10 +19,10 @@
 
 void usage(const char *appName) {
     std::cerr << appName << " does the following order of actions:\n"
-                 "  1) reads the input file containing the serialized tree\n"
-                 "  2) deserializes the tree\n"
-                 "  3) prints the tree to stdout\n"
-                 "  4) serializes the tree to the output file\n\n"
+                            "  1) reads the input file containing the serialized tree\n"
+                            "  2) deserializes the tree\n"
+                            "  3) prints the tree to stdout\n"
+                            "  4) serializes the tree to the output file\n\n"
               << "Usage: " << appName << " -i <inputFile> -o <outputFile>\n"
               << std::flush;
 }
@@ -61,7 +61,8 @@ int main(int argc, char *argv[]) {
     }
 
     if (!root) {
-        std::cerr << "Failed to read tree from the given file: " << inputFile << std::endl;
+        std::cerr << "Failed to read tree from the given file: " << inputFile
+                  << std::endl;
         return 2;
     }
 

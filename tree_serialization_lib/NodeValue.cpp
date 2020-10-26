@@ -20,7 +20,7 @@ namespace {
         os.write(value.c_str(), value.size());
     }
 
-    bool streamValid(std::ios& os) {
+    bool streamValid(std::ios &os) {
         return !os.bad() && !os.fail();
     }
 
@@ -122,7 +122,7 @@ NodeValue NodeValue::deserialize(std::istream &istream) {
     }
 
     uint8_t type;
-    istream.read(reinterpret_cast<char*>(&type), sizeof(type));
+    istream.read(reinterpret_cast<char *>(&type), sizeof(type));
     if (!istream.good()) {
         return NodeValue();
     }
@@ -134,7 +134,8 @@ NodeValue NodeValue::deserialize(std::istream &istream) {
         case NodeValue::STRING_TYPE:
             return extractString(istream);
         default:
-            std::cerr << "Unsupported type to extract from string: " << (uint8_t) type << std::endl;
+            std::cerr << "Unsupported type to extract from string: " << (uint8_t) type
+                      << std::endl;
             break;
     }
 

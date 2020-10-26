@@ -2,8 +2,7 @@
 
 #include "Node.h"
 
-TEST(NodeTest, AppendChildTest)
-{
+TEST(NodeTest, AppendChildTest) {
     Node node(100);
     auto firstChild = std::make_shared<Node>(90.2);
     auto secondChild = std::make_shared<Node>("90.2poiuytr");
@@ -17,8 +16,7 @@ TEST(NodeTest, AppendChildTest)
     ASSERT_EQ(secondChild, node.getChildes()[1]);
 }
 
-TEST(NodeTest, SerialiseTest)
-{
+TEST(NodeTest, SerialiseTest) {
     const std::string expectedString = "100dqwdw90.876";
     Node node(expectedString);
 
@@ -29,8 +27,7 @@ TEST(NodeTest, SerialiseTest)
     ASSERT_EQ(node, *dvalue);
 }
 
-TEST(NodeTest, PrintTest)
-{
+TEST(NodeTest, PrintTest) {
     const std::string expectedString = "2.876";
     Node node(expectedString);
     std::stringstream pStream;

@@ -3,8 +3,7 @@
 
 #include "NodeValue.h"
 
-TEST(NodeValueTest, IntTest)
-{
+TEST(NodeValueTest, IntTest) {
     NodeValue value(100);
 
     std::stringstream sstream;
@@ -18,8 +17,7 @@ TEST(NodeValueTest, IntTest)
     ASSERT_EQ(std::string("100"), pStream.str());
 }
 
-TEST(NodeValueTest, DoubleTest)
-{
+TEST(NodeValueTest, DoubleTest) {
     double expectedValue = 100.87662;
     NodeValue value(expectedValue);
 
@@ -34,8 +32,7 @@ TEST(NodeValueTest, DoubleTest)
     ASSERT_EQ("100.877", pStream.str()); // by default double precision is 3 digits
 }
 
-TEST(NodeValueTest, StringTest)
-{
+TEST(NodeValueTest, StringTest) {
     const std::string expectedString = "100dqwdw90.876";
     NodeValue value(expectedString);
 

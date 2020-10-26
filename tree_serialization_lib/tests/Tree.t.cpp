@@ -46,15 +46,14 @@ TEST_F(TreeTest, Print) {
     std::string line;
     size_t i = 0;
     while (std::getline(sstream, line)) {
-        ASSERT_LE(i , lines.size());
+        ASSERT_LE(i, lines.size());
         ASSERT_EQ(lines[i], line);
         ++i;
     }
 }
 
-TEST_F(TreeTest, Traverse)
-{
-    std::vector<Node*> expectedNodes;
+TEST_F(TreeTest, Traverse) {
+    std::vector<Node *> expectedNodes;
     expectedNodes.emplace_back(m_root.get());
     expectedNodes.emplace_back(m_root->getChildes()[0].get());
     expectedNodes.emplace_back(m_root->getChildes()[1].get());
@@ -67,25 +66,28 @@ TEST_F(TreeTest, Traverse)
     expectedNodes.emplace_back(m_root->getChildes()[1]->getChildes()[2].get());
     expectedNodes.emplace_back(m_root->getChildes()[2]->getChildes()[0].get());
 
-    std::vector<Node*> resultNodes;
-    Tree::traverseNLR(m_root, [&resultNodes](Node* node){resultNodes.emplace_back(node);});
+    std::vector<Node *> resultNodes;
+    Tree::traverseNLR(m_root,
+                      [&resultNodes](Node *node) { resultNodes.emplace_back(node); });
     ASSERT_EQ(expectedNodes, resultNodes);
 }
 
 TEST_F(TreeTest, Serialize) {
     std::stringstream sstream;
 
-    std::vector<Node*> expectedNodes;
-    Tree::traverseNLR(m_root, [&expectedNodes](Node* node){expectedNodes.emplace_back(node);});
+    std::vector<Node *> expectedNodes;
+    Tree::traverseNLR(m_root,
+                      [&expectedNodes](Node *node) { expectedNodes.emplace_back(node); });
 
     Tree::serialize(sstream, m_root);
     auto root = Tree::deserialize(sstream);
 
-    std::vector<Node*> resultNodes;
-    Tree::traverseNLR(root, [&resultNodes](Node* node){resultNodes.emplace_back(node);});
+    std::vector<Node *> resultNodes;
+    Tree::traverseNLR(root,
+                      [&resultNodes](Node *node) { resultNodes.emplace_back(node); });
 
     ASSERT_EQ(expectedNodes.size(), resultNodes.size());
-    for (size_t i =0; i < expectedNodes.size(); ++i) {
+    for (size_t i = 0; i < expectedNodes.size(); ++i) {
         ASSERT_EQ(*expectedNodes[i], *resultNodes[i]);
     }
 }
