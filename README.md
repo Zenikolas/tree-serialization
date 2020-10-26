@@ -24,8 +24,4 @@ ctest
   - add logging
   - add namespaces
   - add corner case tests
-  - add description to methods
   - display strings with quotes
-  - add description of application
-  - add build, coverage, tests status
-  - open files in binary?
