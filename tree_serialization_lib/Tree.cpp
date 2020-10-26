@@ -67,8 +67,10 @@ void Tree::print(std::ostream &os, const std::shared_ptr<Node> &root) {
         }
 
         stack.push({childs.back(), intend, true});
-        for (size_t i = 0; i < childs.size() - 1; ++i) {
-            stack.push({childs[childs.size() - 2 - i], intend, false});
+        const size_t lastElemIndex = childs.size() - 1;
+        const size_t preLastElemIndex = lastElemIndex - 1;
+        for (size_t i = 0; i < lastElemIndex; ++i) {
+            stack.push({childs[preLastElemIndex - i], intend, false});
         }
     }
 }

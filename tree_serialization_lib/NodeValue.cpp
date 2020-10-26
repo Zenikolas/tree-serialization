@@ -134,7 +134,7 @@ NodeValue NodeValue::deserialize(std::istream &istream) {
         case NodeValue::STRING_TYPE:
             return extractString(istream);
         default:
-            std::cerr << "Unsupported type to extract from string: " << (uint8_t) type
+            std::cerr << "Unsupported type to extract from string: " << (int) type
                       << std::endl;
             break;
     }
