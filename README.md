@@ -1,6 +1,6 @@
 # Welcome to Tree serialization project!
 The aim of the project is to provide mechanism for serialization of multi-dimensional
- trees to stream either stdout or file stream and de-serialise them back
+ trees to stream either stdout or file and de-serialise them back
 
 ## Values
 Trees can holds three different types of values:
@@ -24,3 +24,4 @@ ctest
   - add logging
   - add corner case tests
   - display strings with quotes
+  
