@@ -72,8 +72,10 @@ TEST_F(TreeTest, Traverse) {
 
     std::vector<const Node*> resultNodes;
     TreeUtil::traverseNLR(m_root.get(),
-                          [&resultNodes](const Node* node) { resultNodes.emplace_back
-                          (node); });
+                          [&resultNodes](const Node* node) {
+                              resultNodes.emplace_back
+                                      (node);
+                          });
     ASSERT_EQ(expectedNodes, resultNodes);
 }
 
@@ -89,8 +91,10 @@ TEST_F(TreeTest, NullTest) {
 
     std::vector<const Node*> resultNodes;
     TreeUtil::traverseNLR(nullptr,
-                          [&resultNodes](const Node* node) { resultNodes.emplace_back
-                          (node); });
+                          [&resultNodes](const Node* node) {
+                              resultNodes.emplace_back
+                                      (node);
+                          });
     ASSERT_TRUE(resultNodes.empty());
 
     std::ifstream ifs;
@@ -102,16 +106,24 @@ TEST_F(TreeTest, Serialize) {
 
     std::vector<const Node*> expectedNodes;
     TreeUtil::traverseNLR(m_root.get(),
-                          [&expectedNodes](const Node* node) { expectedNodes.emplace_back
-                          (node); });
+                          [&expectedNodes](const Node* node) {
+                              expectedNodes.emplace_back
+                                      (node);
+                          });
 
     TreeUtil::serialize(sstream, m_root.get());
+    {
+        std::ofstream ofs("input.dat");
+        TreeUtil::serialize(ofs, m_root.get());
+    }
     auto root = TreeUtil::deserialize(sstream);
 
     std::vector<const Node*> resultNodes;
     TreeUtil::traverseNLR(root.get(),
-                          [&resultNodes](const Node* node) { resultNodes.emplace_back
-                          (node); });
+                          [&resultNodes](const Node* node) {
+                              resultNodes.emplace_back
+                                      (node);
+                          });
 
     ASSERT_EQ(expectedNodes.size(), resultNodes.size());
     for (size_t i = 0; i < expectedNodes.size(); ++i) {

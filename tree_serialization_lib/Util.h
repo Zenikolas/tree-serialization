@@ -7,8 +7,7 @@
 \brief useful utility functions
 \author Nikolay Zemtsovskiy
 */
-#ifndef TREE_SERIALIZATION_UTIL_H
-#define TREE_SERIALIZATION_UTIL_H
+#pragma once
 
 #include <utility>
 
@@ -29,6 +28,5 @@ void htonT(T* input) {
 #endif
 }
 }
-
-#endif //TREE_SERIALIZATION_UTIL_H
 /*! @} */
+

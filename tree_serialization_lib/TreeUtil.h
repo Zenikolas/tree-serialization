@@ -9,9 +9,7 @@
 
 TreeUtil class provides mechanism to manage trees: serialise, de-serialise, traverse and print
 */
-
-#ifndef TREE_SERIALIZATION_TREEUTIL_H
-#define TREE_SERIALIZATION_TREEUTIL_H
+#pragma once
 
 #include <memory>
 #include <functional>
@@ -53,6 +51,4 @@ public:
                             const std::function<void(const Node*)>& func);
 };
 }
-
-#endif //TREE_SERIALIZATION_TREEUTIL_H
 /*! @} */

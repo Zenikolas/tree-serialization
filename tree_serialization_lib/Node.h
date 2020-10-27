@@ -7,8 +7,7 @@
 \brief Contains class Node which is used for building nodes of the tree
 \author Nikolay Zemtsovskiy
 */
-#ifndef TREE_SERIALIZATION_NODE_H
-#define TREE_SERIALIZATION_NODE_H
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -95,7 +94,4 @@ bool operator==(const Node& lhs, const Node& rhs) {
     return lhs.m_value == rhs.m_value;
 }
 }
-
-
-#endif //TREE_SERIALIZATION_NODE_H
 /*! @} */

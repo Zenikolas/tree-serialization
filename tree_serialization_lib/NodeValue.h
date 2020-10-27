@@ -11,8 +11,7 @@
 The object of NodeValue class can store three different types of values:
 integer, floating number, string
 */
-#ifndef TREE_SERIALIZATION_NODEVALUE_H
-#define TREE_SERIALIZATION_NODEVALUE_H
+#pragma once
 
 #include <string>
 #include <variant>
@@ -87,6 +86,4 @@ bool operator==(const NodeValue& lhs, const NodeValue& rhs) {
     return lhs.m_value == rhs.m_value;
 }
 }
-
-#endif //TREE_SERIALIZATION_NODEVALUE_H
 /*! @} */
