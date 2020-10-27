@@ -51,19 +51,24 @@ int main(int argc, char* argv[]) {
 
     if (!inputFile || !outfileFile) {
         usage(argv[0]);
-        return 1;
+        return EXIT_SUCCESS;
     }
 
     std::unique_ptr<treesl::Node> root;
     {
         std::ifstream ifs(inputFile);
+        if (!ifs.good()) {
+            std::cerr << "Failed to open for reading input file: " << inputFile <<
+                      std::endl;
+            return EXIT_FAILURE;
+        }
         root = treesl::TreeUtil::deserialize(ifs);
     }
 
     if (!root) {
         std::cerr << "Failed to read tree from the given file: " << inputFile
                   << std::endl;
-        return 2;
+        return EXIT_FAILURE;
     }
 
     treesl::TreeUtil::print(std::cout, root.get());
@@ -71,9 +76,14 @@ int main(int argc, char* argv[]) {
 
     {
         std::ofstream ofs(outfileFile);
+        if (!ofs.good()) {
+            std::cerr << "Failed to open for writing output file: " << outfileFile <<
+                      std::endl;
+            return EXIT_FAILURE;
+        }
         if (!treesl::TreeUtil::serialize(ofs, root.get())) {
             std::cerr << "Failed to serialize tree to file: " << outfileFile << std::endl;
-            return 3;
+            return EXIT_FAILURE;
         }
     }
 
