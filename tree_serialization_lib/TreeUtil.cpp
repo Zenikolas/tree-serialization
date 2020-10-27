@@ -3,7 +3,7 @@
 #include <stack>
 #include <cassert>
 
-#include "Tree.h"
+#include "TreeUtil.h"
 
 std::unique_ptr<Node> getNodeFromStream(std::istream& ifs) {
     char message;
@@ -15,7 +15,7 @@ std::unique_ptr<Node> getNodeFromStream(std::istream& ifs) {
     return Node::deserialize(ifs);
 }
 
-std::shared_ptr<Node> Tree::deserialize(std::istream& ifs) {
+std::shared_ptr<Node> TreeUtil::deserialize(std::istream& ifs) {
     if (!ifs.good()) {
         std::cerr << "invalid input stream is given for deserializing" << std::endl;
         return nullptr;
@@ -46,7 +46,7 @@ std::shared_ptr<Node> Tree::deserialize(std::istream& ifs) {
     return root;
 }
 
-void Tree::print(std::ostream& os, const std::shared_ptr<Node>& root) {
+void TreeUtil::print(std::ostream& os, const std::shared_ptr<Node>& root) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return;
@@ -86,7 +86,7 @@ void Tree::print(std::ostream& os, const std::shared_ptr<Node>& root) {
     }
 }
 
-bool Tree::serialize(std::ostream& os, const std::shared_ptr<Node>& root) {
+bool TreeUtil::serialize(std::ostream& os, const std::shared_ptr<Node>& root) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return false;
@@ -127,8 +127,8 @@ bool Tree::serialize(std::ostream& os, const std::shared_ptr<Node>& root) {
 }
 
 
-void Tree::traverseNLR(const std::shared_ptr<Node>& root,
-                       const std::function<void(Node*)>& func) {
+void TreeUtil::traverseNLR(const std::shared_ptr<Node>& root,
+                           const std::function<void(Node*)>& func) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return;

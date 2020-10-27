@@ -1,4 +1,4 @@
-/*! \defgroup tree_serialization_lib Tree serialization library
+/*! \defgroup tree_serialization_lib TreeUtil serialization library
     @{
 */
 

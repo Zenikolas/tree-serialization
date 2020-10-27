@@ -1,4 +1,4 @@
-#include "Tree.h"
+#include "TreeUtil.h"
 
 #include <gtest/gtest.h>
 
@@ -30,7 +30,7 @@ protected:
 
 TEST_F(TreeTest, Print) {
     std::stringstream sstream;
-    Tree::print(sstream, m_root);
+    TreeUtil::print(sstream, m_root);
 
     std::vector<std::string> lines = {
             "+ 8766",
@@ -69,43 +69,43 @@ TEST_F(TreeTest, Traverse) {
     expectedNodes.emplace_back(m_root->getChildes()[2]->getChildes()[0].get());
 
     std::vector<Node*> resultNodes;
-    Tree::traverseNLR(m_root,
-                      [&resultNodes](Node* node) { resultNodes.emplace_back(node); });
+    TreeUtil::traverseNLR(m_root,
+                          [&resultNodes](Node* node) { resultNodes.emplace_back(node); });
     ASSERT_EQ(expectedNodes, resultNodes);
 }
 
 TEST_F(TreeTest, NullTest) {
     std::stringstream sstream;
-    ASSERT_FALSE(Tree::serialize(sstream, nullptr));
+    ASSERT_FALSE(TreeUtil::serialize(sstream, nullptr));
     ASSERT_TRUE(sstream.good());
     ASSERT_TRUE(sstream.str().empty());
 
-    Tree::print(sstream, nullptr);
+    TreeUtil::print(sstream, nullptr);
     ASSERT_TRUE(sstream.good());
     ASSERT_TRUE(sstream.str().empty());
 
     std::vector<Node*> resultNodes;
-    Tree::traverseNLR(nullptr,
-                      [&resultNodes](Node* node) { resultNodes.emplace_back(node); });
+    TreeUtil::traverseNLR(nullptr,
+                          [&resultNodes](Node* node) { resultNodes.emplace_back(node); });
     ASSERT_TRUE(resultNodes.empty());
 
     std::ifstream ifs;
-    ASSERT_FALSE(Tree::deserialize(ifs));
+    ASSERT_FALSE(TreeUtil::deserialize(ifs));
 }
 
 TEST_F(TreeTest, Serialize) {
     std::stringstream sstream;
 
     std::vector<Node*> expectedNodes;
-    Tree::traverseNLR(m_root,
-                      [&expectedNodes](Node* node) { expectedNodes.emplace_back(node); });
+    TreeUtil::traverseNLR(m_root,
+                          [&expectedNodes](Node* node) { expectedNodes.emplace_back(node); });
 
-    Tree::serialize(sstream, m_root);
-    auto root = Tree::deserialize(sstream);
+    TreeUtil::serialize(sstream, m_root);
+    auto root = TreeUtil::deserialize(sstream);
 
     std::vector<Node*> resultNodes;
-    Tree::traverseNLR(root,
-                      [&resultNodes](Node* node) { resultNodes.emplace_back(node); });
+    TreeUtil::traverseNLR(root,
+                          [&resultNodes](Node* node) { resultNodes.emplace_back(node); });
 
     ASSERT_EQ(expectedNodes.size(), resultNodes.size());
     for (size_t i = 0; i < expectedNodes.size(); ++i) {

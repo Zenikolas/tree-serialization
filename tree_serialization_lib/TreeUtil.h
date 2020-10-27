@@ -1,24 +1,24 @@
-/*! \defgroup tree_serialization_lib Tree serialization library
+/*! \defgroup tree_serialization_lib TreeUtil serialization library
     @{
 */
 
 /*!
 \file
-\brief Contains class Tree which provides method to manipulate trees
+\brief Contains class TreeUtil which provides method to manipulate trees
 \author Nikolay Zemtsovskiy
 
-Tree class provides mechanism to manage trees: serialise, de-serialise, traverse and print
+TreeUtil class provides mechanism to manage trees: serialise, de-serialise, traverse and print
 */
 
-#ifndef TREE_SERIALIZATION_TREE_H
-#define TREE_SERIALIZATION_TREE_H
+#ifndef TREE_SERIALIZATION_TREEUTIL_H
+#define TREE_SERIALIZATION_TREEUTIL_H
 
 #include <memory>
 #include <functional>
 
 #include "Node.h"
 
-class Tree {
+class TreeUtil {
 public:
     /*!
     De-serialises the tree from the given input stream
@@ -52,5 +52,5 @@ public:
                             const std::function<void(Node*)>& func);
 };
 
-#endif //TREE_SERIALIZATION_TREE_H
+#endif //TREE_SERIALIZATION_TREEUTIL_H
 /*! @} */

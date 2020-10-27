@@ -15,7 +15,7 @@
 #include <fstream>
 #include <unistd.h>
 
-#include "Tree.h"
+#include "TreeUtil.h"
 
 void usage(const char* appName) {
     std::cerr << appName << " does the following order of actions:\n"
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<Node> root;
     {
         std::ifstream ifs(inputFile);
-        root = Tree::deserialize(ifs);
+        root = TreeUtil::deserialize(ifs);
     }
 
     if (!root) {
@@ -66,12 +66,12 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
-    Tree::print(std::cout, root);
+    TreeUtil::print(std::cout, root);
     std::cout << std::flush;
 
     {
         std::ofstream ofs(outfileFile);
-        if (!Tree::serialize(ofs, root)) {
+        if (!TreeUtil::serialize(ofs, root)) {
             std::cerr << "Failed to serialize tree to file: " << outfileFile << std::endl;
             return 3;
         }
