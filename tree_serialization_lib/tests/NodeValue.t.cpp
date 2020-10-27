@@ -3,6 +3,8 @@
 
 #include "NodeValue.h"
 
+using namespace treesl;
+
 TEST(NodeValueTest, IntTest) {
     NodeValue value(100);
 

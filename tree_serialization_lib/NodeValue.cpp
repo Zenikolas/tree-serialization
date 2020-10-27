@@ -5,63 +5,64 @@
 
 #include "Util.h"
 
+namespace treesl {
 namespace {
-    void serialize(std::ostream& os, int value) {
-        value = htonl(value);
-        os.write(reinterpret_cast<char*>(&value), sizeof value);
+void serialize(std::ostream& os, int value) {
+    value = htonl(value);
+    os.write(reinterpret_cast<char*>(&value), sizeof value);
+}
+
+void serialize(std::ostream& os, double value) {
+    uint64_t uintValue = util::htonll(reinterpret_cast<uint64_t&>(value));
+    os.write(reinterpret_cast<char*>(&uintValue), sizeof uintValue);
+}
+
+void serialize(std::ostream& os, const std::string& value) {
+    os.write(value.c_str(), value.size());
+}
+
+bool streamValid(std::ios& os) {
+    return !os.bad() && !os.fail();
+}
+
+NodeValue extractInt(std::istream& istream) {
+    uint32_t valueUnsigned;
+    istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
+    if (!streamValid(istream)) {
+        return NodeValue();
     }
 
-    void serialize(std::ostream& os, double value) {
-        uint64_t uintValue = util::htonll(reinterpret_cast<uint64_t&>(value));
-        os.write(reinterpret_cast<char*>(&uintValue), sizeof uintValue);
+    valueUnsigned = ntohl(valueUnsigned);
+    return NodeValue(static_cast<int>(valueUnsigned));
+}
+
+NodeValue extractDouble(std::istream& istream) {
+    uint64_t valueUnsigned;
+    istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
+    if (!streamValid(istream)) {
+        return NodeValue();
     }
 
-    void serialize(std::ostream& os, const std::string& value) {
-        os.write(value.c_str(), value.size());
+    valueUnsigned = util::htonll(valueUnsigned);
+    return NodeValue(reinterpret_cast<double&>(valueUnsigned));
+}
+
+NodeValue extractString(std::istream& istream) {
+    uint64_t size;
+    istream.read(reinterpret_cast<char*>(&size), sizeof(size));
+    if (!istream.good()) {
+        return NodeValue();
     }
 
-    bool streamValid(std::ios& os) {
-        return !os.bad() && !os.fail();
+    size = util::htonll(size);
+    char buffer[size];
+    istream.read(buffer, size);
+    if (!streamValid(istream)) {
+        return NodeValue();
     }
 
-    NodeValue extractInt(std::istream& istream) {
-        uint32_t valueUnsigned;
-        istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
-        if (!streamValid(istream)) {
-            return NodeValue();
-        }
-
-        valueUnsigned = ntohl(valueUnsigned);
-        return NodeValue(static_cast<int>(valueUnsigned));
-    }
-
-    NodeValue extractDouble(std::istream& istream) {
-        uint64_t valueUnsigned;
-        istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
-        if (!streamValid(istream)) {
-            return NodeValue();
-        }
-
-        valueUnsigned = util::htonll(valueUnsigned);
-        return NodeValue(reinterpret_cast<double&>(valueUnsigned));
-    }
-
-    NodeValue extractString(std::istream& istream) {
-        uint64_t size;
-        istream.read(reinterpret_cast<char*>(&size), sizeof(size));
-        if (!istream.good()) {
-            return NodeValue();
-        }
-
-        size = util::htonll(size);
-        char buffer[size];
-        istream.read(buffer, size);
-        if (!streamValid(istream)) {
-            return NodeValue();
-        }
-
-        return NodeValue(std::string(buffer, size));
-    }
+    return NodeValue(std::string(buffer, size));
+}
 }
 
 NodeValue::Type NodeValue::getType() const {
@@ -101,13 +102,13 @@ void NodeValue::serialize(std::ostream& os) const {
 
     switch (type) {
         case NodeValue::INT_TYPE:
-            ::serialize(os, std::get<int>(m_value));
+            treesl::serialize(os, std::get<int>(m_value));
             break;
         case NodeValue::DOUBLE_TYPE:
-            ::serialize(os, std::get<double>(m_value));
+            treesl::serialize(os, std::get<double>(m_value));
             break;
         case NodeValue::STRING_TYPE:
-            ::serialize(os, std::get<std::string>(m_value));
+            treesl::serialize(os, std::get<std::string>(m_value));
             break;
         default:
             std::cerr << "Unsupported type to serialize: " << type << std::endl;
@@ -140,4 +141,5 @@ NodeValue NodeValue::deserialize(std::istream& istream) {
     }
 
     return NodeValue();
+}
 }

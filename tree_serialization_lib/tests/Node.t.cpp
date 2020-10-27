@@ -2,6 +2,8 @@
 
 #include "Node.h"
 
+using namespace treesl;
+
 TEST(NodeTest, AppendChildTest) {
     Node node(100);
     auto firstChild = std::make_shared<Node>(90.2);

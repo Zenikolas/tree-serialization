@@ -54,10 +54,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::shared_ptr<Node> root;
+    std::shared_ptr<treesl::Node> root;
     {
         std::ifstream ifs(inputFile);
-        root = TreeUtil::deserialize(ifs);
+        root = treesl::TreeUtil::deserialize(ifs);
     }
 
     if (!root) {
@@ -66,12 +66,12 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
-    TreeUtil::print(std::cout, root);
+    treesl::TreeUtil::print(std::cout, root);
     std::cout << std::flush;
 
     {
         std::ofstream ofs(outfileFile);
-        if (!TreeUtil::serialize(ofs, root)) {
+        if (!treesl::TreeUtil::serialize(ofs, root)) {
             std::cerr << "Failed to serialize tree to file: " << outfileFile << std::endl;
             return 3;
         }

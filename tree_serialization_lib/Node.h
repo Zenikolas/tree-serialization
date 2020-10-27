@@ -15,6 +15,7 @@
 
 #include "NodeValue.h"
 
+namespace treesl {
 class Node {
     NodeValue m_value;
     std::vector<std::shared_ptr<Node>> m_childes;
@@ -100,6 +101,7 @@ std::ostream& operator<<(std::ostream& os, const Node& value) {
 inline
 bool operator==(const Node& lhs, const Node& rhs) {
     return lhs.m_value == rhs.m_value;
+}
 }
 
 

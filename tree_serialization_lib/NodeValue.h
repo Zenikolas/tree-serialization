@@ -18,6 +18,7 @@ integer, floating number, string
 #include <variant>
 #include <ostream>
 
+namespace treesl {
 class NodeValue {
     std::variant<bool, int, double, std::string> m_value;
 
@@ -84,6 +85,7 @@ std::ostream& operator<<(std::ostream& os, const NodeValue& value) {
 inline
 bool operator==(const NodeValue& lhs, const NodeValue& rhs) {
     return lhs.m_value == rhs.m_value;
+}
 }
 
 #endif //TREE_SERIALIZATION_NODEVALUE_H

@@ -18,6 +18,7 @@ TreeUtil class provides mechanism to manage trees: serialise, de-serialise, trav
 
 #include "Node.h"
 
+namespace treesl {
 class TreeUtil {
 public:
     /*!
@@ -51,6 +52,7 @@ public:
     static void traverseNLR(const std::shared_ptr<Node>& root,
                             const std::function<void(Node*)>& func);
 };
+}
 
 #endif //TREE_SERIALIZATION_TREEUTIL_H
 /*! @} */

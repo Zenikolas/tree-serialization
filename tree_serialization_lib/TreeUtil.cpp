@@ -5,6 +5,7 @@
 
 #include "TreeUtil.h"
 
+namespace treesl {
 std::unique_ptr<Node> getNodeFromStream(std::istream& ifs) {
     char message;
     ifs.read(reinterpret_cast<char*>(&message), sizeof(message));
@@ -146,4 +147,5 @@ void TreeUtil::traverseNLR(const std::shared_ptr<Node>& root,
             qq.push(child);
         }
     }
+}
 }

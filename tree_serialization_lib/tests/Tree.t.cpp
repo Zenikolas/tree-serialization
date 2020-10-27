@@ -4,6 +4,8 @@
 
 #include <fstream>
 
+using namespace treesl;
+
 /// @cond DEV
 class TreeTest : public ::testing::Test {
 protected:
