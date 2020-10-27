@@ -2,6 +2,7 @@
 
 #include <arpa/inet.h>
 #include <iostream>
+#include <cstring>
 
 #include "Util.h"
 
@@ -13,8 +14,9 @@ void serialize(std::ostream& os, int value) {
 }
 
 void serialize(std::ostream& os, double value) {
-    uint64_t uintValue = util::htonll(reinterpret_cast<uint64_t&>(value));
-    os.write(reinterpret_cast<char*>(&uintValue), sizeof uintValue);
+    char data[sizeof(value)];
+    memcpy(&data, &value, sizeof(value));
+    os.write(data, sizeof data);
 }
 
 void serialize(std::ostream& os, const std::string& value) {
@@ -37,14 +39,12 @@ NodeValue extractInt(std::istream& istream) {
 }
 
 NodeValue extractDouble(std::istream& istream) {
-    uint64_t valueUnsigned;
-    istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
+    double value;
+    istream.read(reinterpret_cast<char*>(&value), sizeof(value));
     if (!streamValid(istream)) {
         return NodeValue();
     }
-
-    valueUnsigned = util::htonll(valueUnsigned);
-    return NodeValue(reinterpret_cast<double&>(valueUnsigned));
+    return NodeValue(value);
 }
 
 NodeValue extractString(std::istream& istream) {
@@ -54,14 +54,15 @@ NodeValue extractString(std::istream& istream) {
         return NodeValue();
     }
 
-    size = util::htonll(size);
-    char buffer[size];
-    istream.read(buffer, size);
+    util::htonT(&size);
+    std::string value(size, 0);
+
+    istream.read(value.data(), size);
     if (!streamValid(istream)) {
         return NodeValue();
     }
 
-    return NodeValue(std::string(buffer, size));
+    return NodeValue(value);
 }
 }
 
@@ -81,7 +82,8 @@ void NodeValue::serializeTypeAndSize(std::ostream& os, Type type) const {
     os.write(reinterpret_cast<char*>(&type), sizeof(type));
     if (type == NodeValue::STRING_TYPE) {
         auto& strRef = std::get<std::string>(m_value);
-        uint64_t size = util::htonll(strRef.size());
+        uint64_t size = strRef.size();
+        util::htonT(&size);
         os.write(reinterpret_cast<char*>(&size), sizeof(size));
     }
 }

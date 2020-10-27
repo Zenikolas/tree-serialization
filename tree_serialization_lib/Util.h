@@ -10,16 +10,24 @@
 #ifndef TREE_SERIALIZATION_UTIL_H
 #define TREE_SERIALIZATION_UTIL_H
 
-#include <cstdint>
+#include <utility>
 
 namespace util {
-    /*!
-    Takes uint64_t number and swap it's bytes to network order checking at first
-    endianness of current architecture
-    \param[in] src input 8-byte number
-    \returns input number converted to network byte order
-    */
-    unsigned long long htonll(uint64_t src);
+/*!
+Takes integral type T of various length and swaps it's bytes to network byte order
+using info about endianness of the current architecture
+\param[in, out] input integral type
+*/
+template<typename T>
+void htonT(T* input) {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+    char* ptr = reinterpret_cast<char*>(input);
+
+    for (std::size_t i = 0; i < sizeof(T) / 2; ++i) {
+        std::swap(ptr[i], ptr[sizeof(T) - 1 - i]);
+    }
+#endif
+}
 }
 
 #endif //TREE_SERIALIZATION_UTIL_H

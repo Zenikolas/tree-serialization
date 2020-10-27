@@ -23,7 +23,7 @@ class NodeValue {
     std::variant<bool, int, double, std::string> m_value;
 
     enum Type : uint8_t {
-        INT_TYPE,
+        INT_TYPE = 0,
         DOUBLE_TYPE,
         STRING_TYPE,
         UNSUPPORTED_TYPE
