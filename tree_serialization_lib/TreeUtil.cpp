@@ -16,45 +16,46 @@ std::unique_ptr<Node> getNodeFromStream(std::istream& ifs) {
     return Node::deserialize(ifs);
 }
 
-std::shared_ptr<Node> TreeUtil::deserialize(std::istream& ifs) {
+std::unique_ptr<Node> TreeUtil::deserialize(std::istream& ifs) {
     if (!ifs.good()) {
         std::cerr << "invalid input stream is given for deserializing" << std::endl;
         return nullptr;
     }
-    std::stack<std::shared_ptr<Node>> stack;
-    std::shared_ptr<Node> root = getNodeFromStream(ifs);
+    std::stack<Node*> stack;
+    std::unique_ptr<Node> root = getNodeFromStream(ifs);
     if (!root) {
         std::cerr << "invalid first token in the given stream for deserializing"
                   << std::endl;
         return nullptr;
     }
 
-    stack.push(root);
+    stack.push(root.get());
     while (!stack.empty()) {
         auto& top = stack.top();
         assert(top);
 
-        std::shared_ptr<Node> child = getNodeFromStream(ifs);
+        std::unique_ptr<Node> child = getNodeFromStream(ifs);
         if (!child) {
             stack.pop();
             continue;
         }
 
-        top->appendChild(child);
-        stack.push(child);
+        top->appendChild(std::move(child));
+        Node* lastChildren = top->getChildes().back().get();
+        stack.push(lastChildren);
     }
 
     return root;
 }
 
-void TreeUtil::print(std::ostream& os, const std::shared_ptr<Node>& root) {
+void TreeUtil::print(std::ostream& os, const Node* root) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return;
     }
 
     struct TreeNode {
-        std::shared_ptr<Node> node;
+        const Node* node;
         std::string intend;
         bool last;
     };
@@ -78,23 +79,23 @@ void TreeUtil::print(std::ostream& os, const std::shared_ptr<Node>& root) {
             intend = top.intend + "|\t";
         }
 
-        stack.push({childs.back(), intend, true});
+        stack.push({childs.back().get(), intend, true});
         const size_t lastElemIndex = childs.size() - 1;
         const size_t preLastElemIndex = lastElemIndex - 1;
         for (size_t i = 0; i < lastElemIndex; ++i) {
-            stack.push({childs[preLastElemIndex - i], intend, false});
+            stack.push({childs[preLastElemIndex - i].get(), intend, false});
         }
     }
 }
 
-bool TreeUtil::serialize(std::ostream& os, const std::shared_ptr<Node>& root) {
+bool TreeUtil::serialize(std::ostream& os, const Node* root) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return false;
     }
 
     struct TreeNode {
-        std::shared_ptr<Node> node;
+        const Node* node;
         bool visited;
     };
 
@@ -120,7 +121,7 @@ bool TreeUtil::serialize(std::ostream& os, const std::shared_ptr<Node>& root) {
         top.node->serialize(os);
         auto& childs = top.node->getChildes();
         for (auto it = childs.rbegin(); it != childs.rend(); ++it) {
-            stack.push({*it, false});
+            stack.push({it->get(), false});
         }
     }
 
@@ -128,23 +129,23 @@ bool TreeUtil::serialize(std::ostream& os, const std::shared_ptr<Node>& root) {
 }
 
 
-void TreeUtil::traverseNLR(const std::shared_ptr<Node>& root,
-                           const std::function<void(Node*)>& func) {
+void TreeUtil::traverseNLR(const Node* root,
+                           const std::function<void(const Node*)>& func) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return;
     }
-    std::queue<std::shared_ptr<Node>> qq;
+    std::queue<const Node*> qq;
     qq.push(root);
 
     while (!qq.empty()) {
-        std::shared_ptr<Node> current = qq.front();
+        auto current = qq.front();
         qq.pop();
 
-        func(current.get());
+        func(current);
 
         for (auto& child : current->getChildes()) {
-            qq.push(child);
+            qq.push(child.get());
         }
     }
 }

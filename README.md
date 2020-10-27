@@ -22,6 +22,6 @@ ctest
 
 ## TODO
   - add logging
-  - add corner case tests
+  - add more corner case tests
   - display strings with quotes
   

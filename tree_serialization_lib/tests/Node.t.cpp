@@ -5,17 +5,17 @@
 using namespace treesl;
 
 TEST(NodeTest, AppendChildTest) {
+    double firstChildValue = 90.2;
+    const char* secondChildValue = "90.2poiuytr";
     Node node(100);
-    auto firstChild = std::make_shared<Node>(90.2);
-    auto secondChild = std::make_shared<Node>("90.2poiuytr");
 
     ASSERT_TRUE(node.getChildes().empty());
-    node.appendChild(firstChild);
+    node.appendChild(std::make_unique<Node>(firstChildValue));
     ASSERT_EQ(1, node.getChildes().size());
-    node.appendChild(secondChild);
+    node.appendChild(std::make_unique<Node>(secondChildValue));
     ASSERT_EQ(2, node.getChildes().size());
-    ASSERT_EQ(firstChild, node.getChildes()[0]);
-    ASSERT_EQ(secondChild, node.getChildes()[1]);
+    ASSERT_EQ(Node(firstChildValue), *node.getChildes()[0]);
+    ASSERT_EQ(Node(secondChildValue), *node.getChildes()[1]);
 }
 
 TEST(NodeTest, SerialiseTest) {
