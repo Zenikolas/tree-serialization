@@ -5,9 +5,9 @@
 
 #include "Tree.h"
 
-std::unique_ptr<Node> getNodeFromStream(std::istream &ifs) {
+std::unique_ptr<Node> getNodeFromStream(std::istream& ifs) {
     char message;
-    ifs.read(reinterpret_cast<char *>(&message), sizeof(message));
+    ifs.read(reinterpret_cast<char*>(&message), sizeof(message));
     if (!ifs.good() || message == '/') {
         return nullptr;
     }
@@ -15,7 +15,7 @@ std::unique_ptr<Node> getNodeFromStream(std::istream &ifs) {
     return Node::deserialize(ifs);
 }
 
-std::shared_ptr<Node> Tree::deserialize(std::istream &ifs) {
+std::shared_ptr<Node> Tree::deserialize(std::istream& ifs) {
     if (!ifs.good()) {
         std::cerr << "invalid input stream is given for deserializing" << std::endl;
         return nullptr;
@@ -24,13 +24,13 @@ std::shared_ptr<Node> Tree::deserialize(std::istream &ifs) {
     std::shared_ptr<Node> root = getNodeFromStream(ifs);
     if (!root) {
         std::cerr << "invalid first token in the given stream for deserializing"
-        << std::endl;
+                  << std::endl;
         return nullptr;
     }
 
     stack.push(root);
     while (!stack.empty()) {
-        auto &top = stack.top();
+        auto& top = stack.top();
         assert(top);
 
         std::shared_ptr<Node> child = getNodeFromStream(ifs);
@@ -46,7 +46,7 @@ std::shared_ptr<Node> Tree::deserialize(std::istream &ifs) {
     return root;
 }
 
-void Tree::print(std::ostream &os, const std::shared_ptr<Node> &root) {
+void Tree::print(std::ostream& os, const std::shared_ptr<Node>& root) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return;
@@ -65,7 +65,7 @@ void Tree::print(std::ostream &os, const std::shared_ptr<Node> &root) {
         stack.pop();
 
         os << top.intend << "+ " << *top.node << "\n";
-        auto &childs = top.node->getChildes();
+        auto& childs = top.node->getChildes();
         if (childs.empty()) {
             continue;
         }
@@ -86,7 +86,7 @@ void Tree::print(std::ostream &os, const std::shared_ptr<Node> &root) {
     }
 }
 
-bool Tree::serialize(std::ostream &os, const std::shared_ptr<Node> &root) {
+bool Tree::serialize(std::ostream& os, const std::shared_ptr<Node>& root) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return false;
@@ -100,7 +100,7 @@ bool Tree::serialize(std::ostream &os, const std::shared_ptr<Node> &root) {
     std::stack<TreeNode> stack;
     stack.push({root, false});
     while (!stack.empty()) {
-        auto &top = stack.top();
+        auto& top = stack.top();
         if (!top.node) {
             stack.pop();
             std::cerr << "invalid node in the given tree!" << std::endl;
@@ -117,7 +117,7 @@ bool Tree::serialize(std::ostream &os, const std::shared_ptr<Node> &root) {
 
         os.write("+", 1);
         top.node->serialize(os);
-        auto &childs = top.node->getChildes();
+        auto& childs = top.node->getChildes();
         for (auto it = childs.rbegin(); it != childs.rend(); ++it) {
             stack.push({*it, false});
         }
@@ -127,8 +127,8 @@ bool Tree::serialize(std::ostream &os, const std::shared_ptr<Node> &root) {
 }
 
 
-void Tree::traverseNLR(const std::shared_ptr<Node> &root,
-                       const std::function<void(Node *)> &func) {
+void Tree::traverseNLR(const std::shared_ptr<Node>& root,
+                       const std::function<void(Node*)>& func) {
     if (!root) {
         std::cerr << "invalid root in the given tree!" << std::endl;
         return;
@@ -142,7 +142,7 @@ void Tree::traverseNLR(const std::shared_ptr<Node> &root,
 
         func(current.get());
 
-        for (auto &child : current->getChildes()) {
+        for (auto& child : current->getChildes()) {
             qq.push(child);
         }
     }

@@ -6,27 +6,27 @@
 #include "Util.h"
 
 namespace {
-    void serialize(std::ostream &os, int value) {
+    void serialize(std::ostream& os, int value) {
         value = htonl(value);
-        os.write(reinterpret_cast<char *>(&value), sizeof value);
+        os.write(reinterpret_cast<char*>(&value), sizeof value);
     }
 
-    void serialize(std::ostream &os, double value) {
-        uint64_t uintValue = util::htonll(reinterpret_cast<uint64_t &>(value));
-        os.write(reinterpret_cast<char *>(&uintValue), sizeof uintValue);
+    void serialize(std::ostream& os, double value) {
+        uint64_t uintValue = util::htonll(reinterpret_cast<uint64_t&>(value));
+        os.write(reinterpret_cast<char*>(&uintValue), sizeof uintValue);
     }
 
-    void serialize(std::ostream &os, const std::string &value) {
+    void serialize(std::ostream& os, const std::string& value) {
         os.write(value.c_str(), value.size());
     }
 
-    bool streamValid(std::ios &os) {
+    bool streamValid(std::ios& os) {
         return !os.bad() && !os.fail();
     }
 
-    NodeValue extractInt(std::istream &istream) {
+    NodeValue extractInt(std::istream& istream) {
         uint32_t valueUnsigned;
-        istream.read(reinterpret_cast<char *>(&valueUnsigned), sizeof(valueUnsigned));
+        istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
         if (!streamValid(istream)) {
             return NodeValue();
         }
@@ -35,20 +35,20 @@ namespace {
         return NodeValue(static_cast<int>(valueUnsigned));
     }
 
-    NodeValue extractDouble(std::istream &istream) {
+    NodeValue extractDouble(std::istream& istream) {
         uint64_t valueUnsigned;
-        istream.read(reinterpret_cast<char *>(&valueUnsigned), sizeof(valueUnsigned));
+        istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
         if (!streamValid(istream)) {
             return NodeValue();
         }
 
         valueUnsigned = util::htonll(valueUnsigned);
-        return NodeValue(reinterpret_cast<double &>(valueUnsigned));
+        return NodeValue(reinterpret_cast<double&>(valueUnsigned));
     }
 
-    NodeValue extractString(std::istream &istream) {
+    NodeValue extractString(std::istream& istream) {
         uint64_t size;
-        istream.read(reinterpret_cast<char *>(&size), sizeof(size));
+        istream.read(reinterpret_cast<char*>(&size), sizeof(size));
         if (!istream.good()) {
             return NodeValue();
         }
@@ -76,16 +76,16 @@ NodeValue::Type NodeValue::getType() const {
     return NodeValue::Type::UNSUPPORTED_TYPE;
 }
 
-void NodeValue::printTypeAndSize(std::ostream &os, Type type) const {
-    os.write(reinterpret_cast<char *>(&type), sizeof(type));
+void NodeValue::printTypeAndSize(std::ostream& os, Type type) const {
+    os.write(reinterpret_cast<char*>(&type), sizeof(type));
     if (type == NodeValue::STRING_TYPE) {
-        auto &strRef = std::get<std::string>(m_value);
+        auto& strRef = std::get<std::string>(m_value);
         uint64_t size = util::htonll(strRef.size());
-        os.write(reinterpret_cast<char *>(&size), sizeof(size));
+        os.write(reinterpret_cast<char*>(&size), sizeof(size));
     }
 }
 
-void NodeValue::print(std::ostream &os) const {
+void NodeValue::print(std::ostream& os) const {
     if (std::holds_alternative<int>(m_value)) {
         os << std::get<int>(m_value);
     } else if (std::holds_alternative<double>(m_value)) {
@@ -95,7 +95,7 @@ void NodeValue::print(std::ostream &os) const {
     }
 }
 
-void NodeValue::serialize(std::ostream &os) const {
+void NodeValue::serialize(std::ostream& os) const {
     NodeValue::Type type = getType();
     printTypeAndSize(os, type);
 
@@ -115,14 +115,14 @@ void NodeValue::serialize(std::ostream &os) const {
     }
 }
 
-NodeValue NodeValue::deserialize(std::istream &istream) {
+NodeValue NodeValue::deserialize(std::istream& istream) {
     if (istream.eof()) {
         std::cerr << "Invalid buffer for representation NodeValue" << std::endl;
         return NodeValue();
     }
 
     uint8_t type;
-    istream.read(reinterpret_cast<char *>(&type), sizeof(type));
+    istream.read(reinterpret_cast<char*>(&type), sizeof(type));
     if (!istream.good()) {
         return NodeValue();
     }

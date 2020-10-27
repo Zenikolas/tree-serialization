@@ -17,7 +17,7 @@
 
 #include "Tree.h"
 
-void usage(const char *appName) {
+void usage(const char* appName) {
     std::cerr << appName << " does the following order of actions:\n"
                             "  1) reads the input file containing the serialized tree\n"
                             "  2) deserializes the tree\n"
@@ -27,10 +27,10 @@ void usage(const char *appName) {
               << std::flush;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     int c;
-    const char *inputFile = nullptr;
-    const char *outfileFile = nullptr;
+    const char* inputFile = nullptr;
+    const char* outfileFile = nullptr;
 
     while ((c = getopt(argc, argv, "i:o:h::")) != -1) {
         switch (c) {

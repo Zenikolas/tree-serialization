@@ -55,7 +55,7 @@ TEST_F(TreeTest, Print) {
 }
 
 TEST_F(TreeTest, Traverse) {
-    std::vector<Node *> expectedNodes;
+    std::vector<Node*> expectedNodes;
     expectedNodes.emplace_back(m_root.get());
     expectedNodes.emplace_back(m_root->getChildes()[0].get());
     expectedNodes.emplace_back(m_root->getChildes()[1].get());
@@ -68,9 +68,9 @@ TEST_F(TreeTest, Traverse) {
     expectedNodes.emplace_back(m_root->getChildes()[1]->getChildes()[2].get());
     expectedNodes.emplace_back(m_root->getChildes()[2]->getChildes()[0].get());
 
-    std::vector<Node *> resultNodes;
+    std::vector<Node*> resultNodes;
     Tree::traverseNLR(m_root,
-                      [&resultNodes](Node *node) { resultNodes.emplace_back(node); });
+                      [&resultNodes](Node* node) { resultNodes.emplace_back(node); });
     ASSERT_EQ(expectedNodes, resultNodes);
 }
 
@@ -84,9 +84,9 @@ TEST_F(TreeTest, NullTest) {
     ASSERT_TRUE(sstream.good());
     ASSERT_TRUE(sstream.str().empty());
 
-    std::vector<Node *> resultNodes;
+    std::vector<Node*> resultNodes;
     Tree::traverseNLR(nullptr,
-                      [&resultNodes](Node *node) { resultNodes.emplace_back(node); });
+                      [&resultNodes](Node* node) { resultNodes.emplace_back(node); });
     ASSERT_TRUE(resultNodes.empty());
 
     std::ifstream ifs;
@@ -96,16 +96,16 @@ TEST_F(TreeTest, NullTest) {
 TEST_F(TreeTest, Serialize) {
     std::stringstream sstream;
 
-    std::vector<Node *> expectedNodes;
+    std::vector<Node*> expectedNodes;
     Tree::traverseNLR(m_root,
-                      [&expectedNodes](Node *node) { expectedNodes.emplace_back(node); });
+                      [&expectedNodes](Node* node) { expectedNodes.emplace_back(node); });
 
     Tree::serialize(sstream, m_root);
     auto root = Tree::deserialize(sstream);
 
-    std::vector<Node *> resultNodes;
+    std::vector<Node*> resultNodes;
     Tree::traverseNLR(root,
-                      [&resultNodes](Node *node) { resultNodes.emplace_back(node); });
+                      [&resultNodes](Node* node) { resultNodes.emplace_back(node); });
 
     ASSERT_EQ(expectedNodes.size(), resultNodes.size());
     for (size_t i = 0; i < expectedNodes.size(); ++i) {
