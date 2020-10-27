@@ -77,7 +77,7 @@ NodeValue::Type NodeValue::getType() const {
     return NodeValue::Type::UNSUPPORTED_TYPE;
 }
 
-void NodeValue::printTypeAndSize(std::ostream& os, Type type) const {
+void NodeValue::serializeTypeAndSize(std::ostream& os, Type type) const {
     os.write(reinterpret_cast<char*>(&type), sizeof(type));
     if (type == NodeValue::STRING_TYPE) {
         auto& strRef = std::get<std::string>(m_value);
@@ -98,7 +98,7 @@ void NodeValue::print(std::ostream& os) const {
 
 void NodeValue::serialize(std::ostream& os) const {
     NodeValue::Type type = getType();
-    printTypeAndSize(os, type);
+    serializeTypeAndSize(os, type);
 
     switch (type) {
         case NodeValue::INT_TYPE:

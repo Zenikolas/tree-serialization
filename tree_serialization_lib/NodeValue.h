@@ -31,7 +31,7 @@ class NodeValue {
 
     Type getType() const;
 
-    void printTypeAndSize(std::ostream& os, Type type) const;
+    void serializeTypeAndSize(std::ostream& os, Type type) const;
 
     friend
     bool operator==(const NodeValue& lhs, const NodeValue& rhs);

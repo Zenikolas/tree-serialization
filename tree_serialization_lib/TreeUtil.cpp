@@ -8,7 +8,7 @@
 namespace treesl {
 std::unique_ptr<Node> getNodeFromStream(std::istream& ifs) {
     char message;
-    ifs.read(reinterpret_cast<char*>(&message), sizeof(message));
+    ifs.read(&message, sizeof(message));
     if (!ifs.good() || message == '/') {
         return nullptr;
     }
@@ -61,7 +61,7 @@ void TreeUtil::print(std::ostream& os, const Node* root) {
     };
 
     std::stack<TreeNode> stack;
-    stack.push({root, "", true});
+    stack.push({.node = root, .intend = "", .last = true});
     while (!stack.empty()) {
         TreeNode top = stack.top();
         stack.pop();
@@ -79,11 +79,12 @@ void TreeUtil::print(std::ostream& os, const Node* root) {
             intend = top.intend + "|\t";
         }
 
-        stack.push({childs.back().get(), intend, true});
+        stack.push({.node = childs.back().get(), .intend = intend, .last = true});
         const size_t lastElemIndex = childs.size() - 1;
         const size_t preLastElemIndex = lastElemIndex - 1;
         for (size_t i = 0; i < lastElemIndex; ++i) {
-            stack.push({childs[preLastElemIndex - i].get(), intend, false});
+            const Node* currentChild = childs[preLastElemIndex - i].get();
+            stack.push({.node = currentChild, .intend = intend, .last =false});
         }
     }
 }
@@ -100,7 +101,7 @@ bool TreeUtil::serialize(std::ostream& os, const Node* root) {
     };
 
     std::stack<TreeNode> stack;
-    stack.push({root, false});
+    stack.push({.node = root, .visited = false});
     while (!stack.empty()) {
         auto& top = stack.top();
         if (!top.node) {
@@ -121,7 +122,7 @@ bool TreeUtil::serialize(std::ostream& os, const Node* root) {
         top.node->serialize(os);
         auto& childs = top.node->getChildes();
         for (auto it = childs.rbegin(); it != childs.rend(); ++it) {
-            stack.push({it->get(), false});
+            stack.push({.node = it->get(), .visited = false});
         }
     }
 
