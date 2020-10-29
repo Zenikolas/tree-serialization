@@ -14,6 +14,7 @@
 #include <memory>
 #include <fstream>
 #include <unistd.h>
+#include <cassert>
 
 #include "TreeUtil.h"
 
@@ -54,7 +55,8 @@ int main(int argc, char* argv[]) {
         return EXIT_SUCCESS;
     }
 
-    std::unique_ptr<treesl::Node> root;
+    std::unique_ptr<treesl::Node> root = nullptr;
+    treesl::NodeError errorCode = treesl::NodeError::SUCCESS;
     {
         std::ifstream ifs(inputFile);
         if (!ifs.good()) {
@@ -62,14 +64,16 @@ int main(int argc, char* argv[]) {
                       std::endl;
             return EXIT_FAILURE;
         }
-        root = treesl::TreeUtil::deserialize(ifs);
+        std::tie(root, errorCode) = treesl::TreeUtil::deserialize(ifs);
     }
 
-    if (!root) {
+    if (errorCode != treesl::NodeError::SUCCESS) {
         std::cerr << "Failed to read tree from the given file: " << inputFile
-                  << std::endl;
+                  << " - " << errorCode << std::endl;
         return EXIT_FAILURE;
     }
+
+    assert(root && "Root must be not null after deserialization");
 
     treesl::TreeUtil::print(std::cout, root.get());
     std::cout << std::flush;
@@ -81,8 +85,10 @@ int main(int argc, char* argv[]) {
                       std::endl;
             return EXIT_FAILURE;
         }
-        if (!treesl::TreeUtil::serialize(ofs, root.get())) {
-            std::cerr << "Failed to serialize tree to file: " << outfileFile << std::endl;
+
+        errorCode = treesl::TreeUtil::serialize(ofs, root.get());
+        if (errorCode != treesl::NodeError::SUCCESS) {
+            std::cerr << "Failed to serialize tree to file: " << outfileFile << " - " << errorCode << std::endl;
             return EXIT_FAILURE;
         }
     }

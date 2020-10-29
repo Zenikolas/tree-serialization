@@ -81,7 +81,7 @@ TEST_F(TreeTest, Traverse) {
 
 TEST_F(TreeTest, NullTest) {
     std::stringstream sstream;
-    ASSERT_FALSE(TreeUtil::serialize(sstream, nullptr));
+    ASSERT_NE(TreeUtil::serialize(sstream, nullptr), NodeError::SUCCESS);
     ASSERT_TRUE(sstream.good());
     ASSERT_TRUE(sstream.str().empty());
 
@@ -98,7 +98,9 @@ TEST_F(TreeTest, NullTest) {
     ASSERT_TRUE(resultNodes.empty());
 
     std::ifstream ifs;
-    ASSERT_FALSE(TreeUtil::deserialize(ifs));
+    auto [root, errorCode] = TreeUtil::deserialize(ifs);
+    ASSERT_NE(errorCode, NodeError::SUCCESS);
+    ASSERT_FALSE(root);
 }
 
 TEST_F(TreeTest, Serialize) {
@@ -116,7 +118,9 @@ TEST_F(TreeTest, Serialize) {
         std::ofstream ofs("input.dat");
         TreeUtil::serialize(ofs, m_root.get());
     }
-    auto root = TreeUtil::deserialize(sstream);
+    auto [root, errorCode] = TreeUtil::deserialize(sstream);
+    ASSERT_EQ(errorCode, NodeError::SUCCESS);
+    ASSERT_TRUE(root);
 
     std::vector<const Node*> resultNodes;
     TreeUtil::traverseNLR(root.get(),

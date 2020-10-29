@@ -22,8 +22,7 @@ public:
     /*!
     De-serialises the tree from the given input stream
     \param[in] ifs input stream which stores serialised tree
-    \returns pair of de-serialised tree and NodeError indicating 0 on success and
-             non-zero otherwise
+    \returns de-serialised tree
     */
     static std::pair<std::unique_ptr<Node>, NodeError> deserialize(std::istream& ifs);
 
@@ -33,7 +32,7 @@ public:
     \param[in] root pointer to root node to serialise
     \returns true on success and false otherwise
     */
-    static NodeError serialize(std::ostream& os, const Node* root);
+    static bool serialize(std::ostream& os, const Node* root);
 
     /*!
     Prints the given tree to the given output stream

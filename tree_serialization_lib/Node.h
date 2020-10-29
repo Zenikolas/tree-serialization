@@ -1,3 +1,4 @@
+#pragma once
 /*! \defgroup tree_serialization_lib TreeUtil serialization library
     @{
 */
@@ -7,7 +8,6 @@
 \brief Contains class Node which is used for building nodes of the tree
 \author Nikolay Zemtsovskiy
 */
-#pragma once
 
 #include <memory>
 #include <vector>
@@ -38,7 +38,7 @@ public:
     void print(std::ostream& os) const;
 
     /// Serialise Node to the given stream
-    void serialize(std::ostream& os) const;
+    NodeError serialize(std::ostream& os) const;
 
     /// Append a child to Node by moving pointer
     void appendChild(std::unique_ptr<Node>&& node);
@@ -46,9 +46,10 @@ public:
     /*!
     De-serialise the object of Node from the given stream
     \param[in] stream holding serialised NodeValue
-    \returns new created Node object
+    \returns pair of new created pointer to Node object and NodeError indicating 0 on
+             success and non-zero otherwise
     */
-    static std::unique_ptr<Node> deserialize(std::istream& stream);
+    static std::pair<std::unique_ptr<Node>, NodeError> deserialize(std::istream& stream);
 };
 
 inline const std::vector<std::unique_ptr<Node>>& Node::getChildes() const {
@@ -61,8 +62,8 @@ void Node::print(std::ostream& os) const {
 }
 
 inline
-void Node::serialize(std::ostream& os) const {
-    m_value.serialize(os);
+NodeError Node::serialize(std::ostream& os) const {
+    return m_value.serialize(os);
 }
 
 inline
@@ -71,15 +72,16 @@ void Node::appendChild(std::unique_ptr<Node>&& node) {
 }
 
 inline
-std::unique_ptr<Node> Node::deserialize(std::istream& stream) {
-    NodeValue nodeValue = NodeValue::deserialize(stream);
-    if (!nodeValue.isInitialized()) {
-        return nullptr;
+std::pair<std::unique_ptr<Node>, NodeError> Node::deserialize(std::istream& stream) {
+    auto [nodeValue, errorCode] = NodeValue::deserialize(stream);
+    if (errorCode != NodeError::SUCCESS) {
+        return {nullptr, errorCode};
     }
 
     auto ret = std::make_unique<Node>();
     ret->m_value = std::move(nodeValue);
-    return ret;
+
+    return {std::move(ret), NodeError::SUCCESS};
 }
 
 inline

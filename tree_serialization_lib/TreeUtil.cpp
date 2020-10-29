@@ -6,35 +6,44 @@
 #include "TreeUtil.h"
 
 namespace treesl {
-std::unique_ptr<Node> getNodeFromStream(std::istream& ifs) {
+std::pair<std::unique_ptr<Node>, NodeError> getNodeFromStream(std::istream& ifs) {
     char message;
     ifs.read(&message, sizeof(message));
-    if (!ifs.good() || message == '/') {
-        return nullptr;
+    if (!ifs.good()) {
+        return {nullptr, NodeError::INVALID_STREAM};
+    }
+
+    if (message == '/') {
+        return {nullptr, NodeError::SUCCESS};
     }
 
     return Node::deserialize(ifs);
 }
 
-std::unique_ptr<Node> TreeUtil::deserialize(std::istream& ifs) {
+std::pair<std::unique_ptr<Node>, NodeError> TreeUtil::deserialize(std::istream& ifs) {
     if (!ifs.good()) {
-        std::cerr << "invalid input stream is given for deserializing" << std::endl;
-        return nullptr;
+        return {nullptr, NodeError::INVALID_STREAM};
     }
     std::stack<Node*> stack;
-    std::unique_ptr<Node> root = getNodeFromStream(ifs);
+    auto[root, errorCode] = getNodeFromStream(ifs);
+    if (errorCode != NodeError::SUCCESS) {
+        return {nullptr, errorCode};
+    }
+
     if (!root) {
-        std::cerr << "invalid first token in the given stream for deserializing"
-                  << std::endl;
-        return nullptr;
+        return {nullptr, NodeError::INVALID_FIRST_TOKEN_STREAM};
     }
 
     stack.push(root.get());
     while (!stack.empty()) {
         auto& top = stack.top();
-        assert(top);
+        assert(top && "Stack node pointers must be not null");
 
-        std::unique_ptr<Node> child = getNodeFromStream(ifs);
+        auto[child, childErrorCode] = getNodeFromStream(ifs);
+        if (childErrorCode != NodeError::SUCCESS) {
+            return {nullptr, childErrorCode};
+        }
+
         if (!child) {
             stack.pop();
             continue;
@@ -45,7 +54,7 @@ std::unique_ptr<Node> TreeUtil::deserialize(std::istream& ifs) {
         stack.push(lastChildren);
     }
 
-    return root;
+    return {std::move(root), NodeError::SUCCESS};
 }
 
 void TreeUtil::print(std::ostream& os, const Node* root) {
@@ -89,10 +98,9 @@ void TreeUtil::print(std::ostream& os, const Node* root) {
     }
 }
 
-bool TreeUtil::serialize(std::ostream& os, const Node* root) {
+NodeError TreeUtil::serialize(std::ostream& os, const Node* root) {
     if (!root) {
-        std::cerr << "invalid root in the given tree!" << std::endl;
-        return false;
+        return NodeError::INVALID_TREE_ROOT;
     }
 
     struct TreeNode {
@@ -105,9 +113,7 @@ bool TreeUtil::serialize(std::ostream& os, const Node* root) {
     while (!stack.empty()) {
         auto& top = stack.top();
         if (!top.node) {
-            stack.pop();
-            std::cerr << "invalid node in the given tree!" << std::endl;
-            continue;
+            return NodeError::INVALID_TREE_CHILD;
         }
 
         if (top.visited) {
@@ -119,14 +125,18 @@ bool TreeUtil::serialize(std::ostream& os, const Node* root) {
         }
 
         os.write("+", 1);
-        top.node->serialize(os);
+        NodeError errorCode = top.node->serialize(os);
+        if (errorCode != NodeError::SUCCESS) {
+            return errorCode;
+        }
+
         auto& childs = top.node->getChildes();
         for (auto it = childs.rbegin(); it != childs.rend(); ++it) {
             stack.push({.node = it->get(), .visited = false});
         }
     }
 
-    return true;
+    return NodeError::SUCCESS;
 }
 
 

@@ -1,3 +1,4 @@
+#pragma once
 /*! \defgroup tree_serialization_lib TreeUtil serialization library
     @{
 */
@@ -7,7 +8,6 @@
 \brief useful utility functions
 \author Nikolay Zemtsovskiy
 */
-#pragma once
 
 #include <utility>
 

@@ -9,9 +9,9 @@ TEST(NodeValueTest, IntTest) {
     NodeValue value(100);
 
     std::stringstream sstream;
-    value.serialize(sstream);
-    NodeValue dvalue = NodeValue::deserialize(sstream);
-    ASSERT_TRUE(dvalue.isInitialized());
+    ASSERT_EQ(NodeError::SUCCESS, value.serialize(sstream));
+    auto [dvalue, errorCode] = NodeValue::deserialize(sstream);
+    ASSERT_EQ(errorCode, NodeError::SUCCESS);
     ASSERT_EQ(value, dvalue);
 
     std::stringstream pStream;
@@ -24,9 +24,9 @@ TEST(NodeValueTest, DoubleTest) {
     NodeValue value(expectedValue);
 
     std::stringstream sstream;
-    value.serialize(sstream);
-    NodeValue dvalue = NodeValue::deserialize(sstream);
-    ASSERT_TRUE(dvalue.isInitialized());
+    ASSERT_EQ(NodeError::SUCCESS, value.serialize(sstream));
+    auto [dvalue, errorCode] = NodeValue::deserialize(sstream);
+    ASSERT_EQ(errorCode, NodeError::SUCCESS);
     ASSERT_EQ(value, dvalue);
 
     std::stringstream pStream;
@@ -39,9 +39,9 @@ TEST(NodeValueTest, StringTest) {
     NodeValue value(expectedString);
 
     std::stringstream sstream;
-    value.serialize(sstream);
-    NodeValue dvalue = NodeValue::deserialize(sstream);
-    ASSERT_TRUE(dvalue.isInitialized());
+    ASSERT_EQ(NodeError::SUCCESS, value.serialize(sstream));
+    auto [dvalue, errorCode] = NodeValue::deserialize(sstream);
+    ASSERT_EQ(errorCode, NodeError::SUCCESS);
     ASSERT_EQ(value, dvalue);
 
     std::stringstream pStream;

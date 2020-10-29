@@ -1,8 +1,8 @@
 #include "NodeValue.h"
 
 #include <arpa/inet.h>
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 #include "Util.h"
 
@@ -23,35 +23,34 @@ void serialize(std::ostream& os, const std::string& value) {
     os.write(value.c_str(), value.size());
 }
 
-bool streamValid(std::ios& os) {
-    return !os.bad() && !os.fail();
-}
+bool streamValid(std::ios& os) { return !os.bad() && !os.fail(); }
 
-NodeValue extractInt(std::istream& istream) {
+std::pair<NodeValue, NodeError> extractInt(std::istream& istream) {
     uint32_t valueUnsigned;
     istream.read(reinterpret_cast<char*>(&valueUnsigned), sizeof(valueUnsigned));
     if (!streamValid(istream)) {
-        return NodeValue();
+        return {NodeValue(), NodeError::INVALID_STREAM};
     }
 
     valueUnsigned = ntohl(valueUnsigned);
-    return NodeValue(static_cast<int>(valueUnsigned));
+    return {NodeValue(static_cast<int>(valueUnsigned)), NodeError::SUCCESS};
 }
 
-NodeValue extractDouble(std::istream& istream) {
+std::pair<NodeValue, NodeError> extractDouble(std::istream& istream) {
     double value;
     istream.read(reinterpret_cast<char*>(&value), sizeof(value));
     if (!streamValid(istream)) {
-        return NodeValue();
+        return {NodeValue(), NodeError::INVALID_STREAM};
     }
-    return NodeValue(value);
+
+    return {NodeValue(value), NodeError::SUCCESS};
 }
 
-NodeValue extractString(std::istream& istream) {
+std::pair<NodeValue, NodeError> extractString(std::istream& istream) {
     uint64_t size;
     istream.read(reinterpret_cast<char*>(&size), sizeof(size));
     if (!istream.good()) {
-        return NodeValue();
+        return {NodeValue(), NodeError::INVALID_STREAM};
     }
 
     util::htonT(&size);
@@ -59,10 +58,10 @@ NodeValue extractString(std::istream& istream) {
 
     istream.read(value.data(), size);
     if (!streamValid(istream)) {
-        return NodeValue();
+        return {NodeValue(), NodeError::INVALID_STREAM};
     }
 
-    return NodeValue(value);
+    return {NodeValue(value), NodeError::SUCCESS};
 }
 }
 
@@ -98,7 +97,7 @@ void NodeValue::print(std::ostream& os) const {
     }
 }
 
-void NodeValue::serialize(std::ostream& os) const {
+NodeError NodeValue::serialize(std::ostream& os) const {
     NodeValue::Type type = getType();
     serializeTypeAndSize(os, type);
 
@@ -113,21 +112,22 @@ void NodeValue::serialize(std::ostream& os) const {
             treesl::serialize(os, std::get<std::string>(m_value));
             break;
         default:
-            std::cerr << "Unsupported type to serialize: " << type << std::endl;
-            break;
+            return NodeError::INVALID_NODE_VALUE_TYPE;
     }
+
+    return NodeError::SUCCESS;
 }
 
-NodeValue NodeValue::deserialize(std::istream& istream) {
-    if (istream.eof()) {
-        std::cerr << "Invalid buffer for representation NodeValue" << std::endl;
-        return NodeValue();
+std::pair<NodeValue, NodeError>
+NodeValue::deserialize(std::istream& istream) {
+    if (!istream.good()) {
+        return {NodeValue(), NodeError::INVALID_STREAM};
     }
 
     uint8_t type;
     istream.read(reinterpret_cast<char*>(&type), sizeof(type));
     if (!istream.good()) {
-        return NodeValue();
+        return {NodeValue(), NodeError::INVALID_STREAM};
     }
     switch (static_cast<Type>(type)) {
         case NodeValue::INT_TYPE:
@@ -137,11 +137,9 @@ NodeValue NodeValue::deserialize(std::istream& istream) {
         case NodeValue::STRING_TYPE:
             return extractString(istream);
         default:
-            std::cerr << "Unsupported type to extract from string: " << (int) type
-                      << std::endl;
             break;
     }
 
-    return NodeValue();
+    return {NodeValue(), NodeError::INVALID_NODE_VALUE_TYPE};
 }
 }

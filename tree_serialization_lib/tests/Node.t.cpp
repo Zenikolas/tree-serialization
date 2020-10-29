@@ -23,9 +23,10 @@ TEST(NodeTest, SerialiseTest) {
     Node node(expectedString);
 
     std::stringstream sstream;
-    node.serialize(sstream);
-    std::unique_ptr<Node> dvalue = Node::deserialize(sstream);
+    ASSERT_EQ(NodeError::SUCCESS, node.serialize(sstream));
+    auto [dvalue, errorCode] = Node::deserialize(sstream);
     ASSERT_TRUE(dvalue);
+    ASSERT_EQ(errorCode, NodeError::SUCCESS);
     ASSERT_EQ(node, *dvalue);
 }
 

@@ -1,21 +1,23 @@
+#pragma once
 /*! \defgroup tree_serialization_lib TreeUtil serialization library
     @{
 */
 
 /*!
 \file
-\brief Contains class NodeValue which provides mechanism to store and manipulate on
- Node values
+\brief Contains class NodeValue which provides mechanism to store and manipulate
+       on Node values
 \author Nikolay Zemtsovskiy
 
 The object of NodeValue class can store three different types of values:
 integer, floating number, string
 */
-#pragma once
 
+#include <ostream>
 #include <string>
 #include <variant>
-#include <ostream>
+
+#include "NodeError.h"
 
 namespace treesl {
 class NodeValue {
@@ -32,8 +34,7 @@ class NodeValue {
 
     void serializeTypeAndSize(std::ostream& os, Type type) const;
 
-    friend
-    bool operator==(const NodeValue& lhs, const NodeValue& rhs);
+    friend bool operator==(const NodeValue& lhs, const NodeValue& rhs);
 
 public:
     NodeValue() = default;
@@ -56,33 +57,25 @@ public:
     void print(std::ostream& os) const;
 
     /// Serialise value to the given stream
-    void serialize(std::ostream& os) const;
-
-    /// Returns true if the object holds the value and false otherwise
-    [[nodiscard]] bool isInitialized() const;
+    NodeError serialize(std::ostream& os) const;
 
     /*!
     De-serialise the value of the object from the given stream
     \param[in] istream holding serialised NodeValue
-    \returns new created NodeValue object
+    \returns pair of new created NodeValue and NodeError indicating 0 on success and
+             non-zero otherwise
     */
-    static NodeValue deserialize(std::istream& istream);
+    static std::pair<NodeValue, NodeError>
+    deserialize(std::istream& istream);
 };
 
-inline
-bool NodeValue::isInitialized() const {
-    return !std::holds_alternative<bool>(m_value);
-}
-
-inline
-std::ostream& operator<<(std::ostream& os, const NodeValue& value) {
+inline std::ostream& operator<<(std::ostream& os, const NodeValue& value) {
     value.print(os);
 
     return os;
 }
 
-inline
-bool operator==(const NodeValue& lhs, const NodeValue& rhs) {
+inline bool operator==(const NodeValue& lhs, const NodeValue& rhs) {
     return lhs.m_value == rhs.m_value;
 }
 }
