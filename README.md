@@ -19,9 +19,4 @@ For running tests run:
 ```
 ctest
 ```
-
-## TODO
-  - add logging
-  - add more corner case tests
-  - display strings with quotes
   
