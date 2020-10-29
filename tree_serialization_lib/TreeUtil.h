@@ -31,7 +31,7 @@ public:
     Serialises the given tree to the given output stream
     \param[out] os stream to serialise tree
     \param[in] root pointer to root node to serialise
-    \returns true on success and false otherwise
+    \returns 0 on success and false otherwise
     */
     static NodeError serialize(std::ostream& os, const Node* root);
 
@@ -39,16 +39,18 @@ public:
     Prints the given tree to the given output stream
     \param[out] os stream to print tree
     \param[in] root pointer to root node to print
+    \returns 0 on success and false otherwise
     */
-    static void print(std::ostream& os, const Node* root);
+    static NodeError print(std::ostream& os, const Node* root);
 
     /*!
     Traverse the given tree by NLR way: first visit current node, then from left to the
     right childes
     \param[in] root pointer to root node to traverse
     \param[in] func to apply on each visited Node pointer
+    \returns 0 on success and false otherwise
     */
-    static void traverseNLR(const Node* root,
+    static NodeError traverseNLR(const Node* root,
                             const std::function<void(const Node*)>& func);
 };
 }

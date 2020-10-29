@@ -75,7 +75,10 @@ int main(int argc, char* argv[]) {
 
     assert(root && "Root must be not null after deserialization");
 
-    treesl::TreeUtil::print(std::cout, root.get());
+    if (treesl::TreeUtil::print(std::cout, root.get()) != treesl::NodeError::SUCCESS) {
+        std::cerr << "Failed to print tree to stdout" << std::endl;
+        return EXIT_FAILURE;
+    }
     std::cout << std::flush;
 
     {

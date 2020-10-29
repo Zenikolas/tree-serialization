@@ -32,7 +32,7 @@ protected:
 
 TEST_F(TreeTest, Print) {
     std::stringstream sstream;
-    TreeUtil::print(sstream, m_root.get());
+    ASSERT_EQ(NodeError::SUCCESS, TreeUtil::print(sstream, m_root.get()));
 
     std::vector<std::string> lines = {
             "+ 8766",
@@ -71,11 +71,12 @@ TEST_F(TreeTest, Traverse) {
     expectedNodes.emplace_back(m_root->getChildes()[2]->getChildes()[0].get());
 
     std::vector<const Node*> resultNodes;
-    TreeUtil::traverseNLR(m_root.get(),
+    NodeError traverseErrorCode = TreeUtil::traverseNLR(m_root.get(),
                           [&resultNodes](const Node* node) {
                               resultNodes.emplace_back
                                       (node);
                           });
+    ASSERT_EQ(NodeError::SUCCESS, traverseErrorCode);
     ASSERT_EQ(expectedNodes, resultNodes);
 }
 
@@ -85,16 +86,17 @@ TEST_F(TreeTest, NullTest) {
     ASSERT_TRUE(sstream.good());
     ASSERT_TRUE(sstream.str().empty());
 
-    TreeUtil::print(sstream, nullptr);
+    ASSERT_NE(NodeError::SUCCESS, TreeUtil::print(sstream, nullptr));
     ASSERT_TRUE(sstream.good());
     ASSERT_TRUE(sstream.str().empty());
 
     std::vector<const Node*> resultNodes;
-    TreeUtil::traverseNLR(nullptr,
+    NodeError traverseErrorCode = TreeUtil::traverseNLR(nullptr,
                           [&resultNodes](const Node* node) {
                               resultNodes.emplace_back
                                       (node);
                           });
+    ASSERT_NE(NodeError::SUCCESS, traverseErrorCode);
     ASSERT_TRUE(resultNodes.empty());
 
     std::ifstream ifs;

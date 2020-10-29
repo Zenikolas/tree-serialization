@@ -57,10 +57,9 @@ std::pair<std::unique_ptr<Node>, NodeError> TreeUtil::deserialize(std::istream& 
     return {std::move(root), NodeError::SUCCESS};
 }
 
-void TreeUtil::print(std::ostream& os, const Node* root) {
+NodeError TreeUtil::print(std::ostream& os, const Node* root) {
     if (!root) {
-        std::cerr << "invalid root in the given tree!" << std::endl;
-        return;
+        return NodeError::INVALID_TREE_ROOT;
     }
 
     struct TreeNode {
@@ -74,6 +73,8 @@ void TreeUtil::print(std::ostream& os, const Node* root) {
     while (!stack.empty()) {
         TreeNode top = stack.top();
         stack.pop();
+
+        assert(top.node && "must be not null");
 
         os << top.intend << "+ " << *top.node << "\n";
         auto& childs = top.node->getChildes();
@@ -96,6 +97,8 @@ void TreeUtil::print(std::ostream& os, const Node* root) {
             stack.push({.node = currentChild, .intend = intend, .last =false});
         }
     }
+
+    return NodeError::SUCCESS;
 }
 
 NodeError TreeUtil::serialize(std::ostream& os, const Node* root) {
@@ -140,12 +143,12 @@ NodeError TreeUtil::serialize(std::ostream& os, const Node* root) {
 }
 
 
-void TreeUtil::traverseNLR(const Node* root,
+NodeError TreeUtil::traverseNLR(const Node* root,
                            const std::function<void(const Node*)>& func) {
     if (!root) {
-        std::cerr << "invalid root in the given tree!" << std::endl;
-        return;
+        return NodeError::INVALID_TREE_ROOT;
     }
+
     std::queue<const Node*> qq;
     qq.push(root);
 
@@ -155,9 +158,12 @@ void TreeUtil::traverseNLR(const Node* root,
 
         func(current);
 
+        assert(current && "must be not null");
         for (auto& child : current->getChildes()) {
             qq.push(child.get());
         }
     }
+
+    return NodeError::SUCCESS;
 }
 }
