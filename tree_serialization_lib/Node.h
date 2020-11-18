@@ -11,34 +11,41 @@
 
 #include <memory>
 #include <vector>
+#include <istream>
 
-#include "NodeValue.h"
+#include "NodeError.h"
 
 namespace treesl {
+
 class Node {
-    NodeValue m_value;
+public:
+    enum Type : uint8_t {
+        INT_TYPE = 0,
+        DOUBLE_TYPE,
+        STRING_TYPE,
+        UNSUPPORTED_TYPE
+    };
+private:
     std::vector<std::unique_ptr<Node>> m_childes;
+
+    virtual NodeError extractValue(std::istream& istream) = 0;
+
+    virtual bool isEqual(const Node& rhs) const = 0;
 
     friend
     bool operator==(const Node& lhs, const Node& rhs);
 
 public:
-    Node() = default;
-
-    explicit Node(int value) : m_value(value) {}
-
-    explicit Node(double value) : m_value(value) {}
-
-    explicit Node(const std::string& value) : m_value(value) {}
+    virtual ~Node() = 0;
 
     /// Returns non-modifiable vector of Node's childes
     const std::vector<std::unique_ptr<Node>>& getChildes() const;
 
     /// Prints Node to the given stream
-    void print(std::ostream& os) const;
+    virtual void print(std::ostream& os) const = 0;
 
     /// Serialise Node to the given stream
-    NodeError serialize(std::ostream& os) const;
+    virtual NodeError serialize(std::ostream& os) const = 0;
 
     /// Append a child to Node by moving pointer
     void appendChild(std::unique_ptr<Node>&& node);
@@ -49,21 +56,39 @@ public:
     \returns pair of new created pointer to Node object and NodeError indicating 0 on
              success and non-zero otherwise
     */
-    static std::pair<std::unique_ptr<Node>, NodeError> deserialize(std::istream& stream);
+    static std::pair<std::unique_ptr<Node>, NodeError>
+    deserialize(std::istream& stream);
+
+    template<class ... Args>
+    static std::unique_ptr<Node> makeNode(Type type, Args&& ... args);
 };
 
-inline const std::vector<std::unique_ptr<Node>>& Node::getChildes() const {
+template<class ValueType>
+class NodeSpecialised : public Node {
+    ValueType m_value;
+
+    NodeError extractValue(std::istream& istream) override;
+
+    bool isEqual(const Node& rhs) const override;
+
+public:
+    NodeSpecialised() = default;
+
+    template<class ForwardValueType>
+    explicit NodeSpecialised(ForwardValueType&& value)
+            : m_value(std::forward<ForwardValueType>(value)) {}
+
+    void print(std::ostream& os) const override;
+
+    NodeError serialize(std::ostream& os) const override;
+};
+
+inline
+Node::~Node() {}
+
+inline
+const std::vector<std::unique_ptr<Node>>& Node::getChildes() const {
     return m_childes;
-}
-
-inline
-void Node::print(std::ostream& os) const {
-    m_value.print(os);
-}
-
-inline
-NodeError Node::serialize(std::ostream& os) const {
-    return m_value.serialize(os);
 }
 
 inline
@@ -71,17 +96,27 @@ void Node::appendChild(std::unique_ptr<Node>&& node) {
     m_childes.emplace_back(std::move(node));
 }
 
-inline
-std::pair<std::unique_ptr<Node>, NodeError> Node::deserialize(std::istream& stream) {
-    auto [nodeValue, errorCode] = NodeValue::deserialize(stream);
-    if (errorCode != NodeError::SUCCESS) {
-        return {nullptr, errorCode};
+template <class ValueType, class ... Args>
+std::unique_ptr<Node> getNodeOrNothing(Args&& ... args) {
+    if constexpr (std::is_constructible_v<ValueType, Args...>) {
+        return std::make_unique<NodeSpecialised<ValueType>>(std::forward<Args>(args)...);
     }
 
-    auto ret = std::make_unique<Node>();
-    ret->m_value = std::move(nodeValue);
+    return nullptr;
+}
 
-    return {std::move(ret), NodeError::SUCCESS};
+template<class ... Args>
+std::unique_ptr<Node> Node::makeNode(Type type, Args&& ... args) {
+    switch (type) {
+        case INT_TYPE:
+            return getNodeOrNothing<int, Args ...>(std::forward<Args> (args)...);
+        case DOUBLE_TYPE:
+            return getNodeOrNothing<double, Args ...>(std::forward<Args> (args)...);
+        case STRING_TYPE:
+            return getNodeOrNothing<std::string, Args ...>(std::forward<Args> (args)...);
+        default:
+            return nullptr;
+    }
 }
 
 inline
@@ -93,7 +128,45 @@ std::ostream& operator<<(std::ostream& os, const Node& value) {
 
 inline
 bool operator==(const Node& lhs, const Node& rhs) {
-    return lhs.m_value == rhs.m_value;
+    return typeid(lhs) == typeid(rhs) && lhs.isEqual(rhs);
 }
+
+template<class ValueType>
+void NodeSpecialised<ValueType>::print(std::ostream& os) const {
+    os << m_value;
+}
+
+template<class ValueType>
+NodeError NodeSpecialised<ValueType>::extractValue(std::istream& istream) {
+    return NodeError::INVALID_NODE_VALUE_TYPE;
+}
+
+template<>
+NodeError NodeSpecialised<int>::extractValue(std::istream& stream);
+
+template<>
+NodeError NodeSpecialised<double>::extractValue(std::istream& stream);
+
+template<>
+NodeError NodeSpecialised<std::string>::extractValue(std::istream& stream);
+
+template<class ValueType>
+bool NodeSpecialised<ValueType>::isEqual(const Node& rhs) const {
+    return m_value == static_cast<const NodeSpecialised<ValueType>&>(rhs).m_value;
+}
+
+template<class ValueType>
+NodeError NodeSpecialised<ValueType>::serialize(std::ostream& os) const {
+    return NodeError::INVALID_NODE_VALUE_TYPE;
+}
+
+template<>
+NodeError NodeSpecialised<int>::serialize(std::ostream& os) const;
+
+template<>
+NodeError NodeSpecialised<double>::serialize(std::ostream& os) const;
+
+template<>
+NodeError NodeSpecialised<std::string>::serialize(std::ostream& os) const;
 }
 /*! @} */

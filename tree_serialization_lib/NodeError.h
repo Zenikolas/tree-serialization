@@ -42,13 +42,12 @@ inline std::ostream& operator<<(std::ostream& os, const NodeError& value) {
             os << "INVALID TREE ROOT";
             break;
         default:
+            os << "UNKNOWN ERROR";
             break;
     }
 
     return os;
 }
-
-
 }  // namespace treesl
 /*! @} */
 
