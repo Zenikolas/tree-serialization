@@ -12,20 +12,20 @@ protected:
     std::unique_ptr<Node> m_root;
 
     TreeTest() {
-        m_root = Node::makeNode(std::string("8766"));
-        m_root->appendChild(Node::makeNode(100));
-        m_root->appendChild(Node::makeNode(90.2));
-        m_root->appendChild(Node::makeNode(std::string("qwdqwd")));
-        m_root->appendChild(Node::makeNode(9));
+        m_root = Node::makeNode<std::string>("8766");
+        m_root->appendChild(Node::makeNode<int>(100));
+        m_root->appendChild(Node::makeNode<double>(90.2));
+        m_root->appendChild(Node::makeNode<std::string>("qwdqwd"));
+        m_root->appendChild(Node::makeNode<int>(9));
 
-        m_root->getChildes()[0]->appendChild(Node::makeNode(786));
-        m_root->getChildes()[0]->appendChild(Node::makeNode(12.12));
+        m_root->getChildes()[0]->appendChild(Node::makeNode<int>(786));
+        m_root->getChildes()[0]->appendChild(Node::makeNode<double>(12.12));
 
-        m_root->getChildes()[1]->appendChild(Node::makeNode(12.42));
-        m_root->getChildes()[1]->appendChild(Node::makeNode(std::string("1222ff")));
-        m_root->getChildes()[1]->appendChild(Node::makeNode(std::string("ddqq22")));
+        m_root->getChildes()[1]->appendChild(Node::makeNode<double>(12.42));
+        m_root->getChildes()[1]->appendChild(Node::makeNode<std::string>("1222ff"));
+        m_root->getChildes()[1]->appendChild(Node::makeNode<std::string>("ddqq22"));
 
-        m_root->getChildes()[2]->appendChild(Node::makeNode(std::string("29.23")));
+        m_root->getChildes()[2]->appendChild(Node::makeNode<std::string>("29.23"));
     }
 };
 /// @endcond
