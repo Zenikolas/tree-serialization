@@ -22,8 +22,7 @@ public:
     enum Type : uint8_t {
         INT_TYPE = 0,
         DOUBLE_TYPE,
-        STRING_TYPE,
-        UNSUPPORTED_TYPE
+        STRING_TYPE
     };
 private:
     std::vector<std::unique_ptr<Node>> m_childes;
@@ -59,6 +58,12 @@ public:
     static std::pair<std::unique_ptr<Node>, NodeError>
     deserialize(std::istream& stream);
 
+    /*!
+    Fabric method which creates pointer to Node for underlying ValueType from the given args
+    \param[in] args to create Node for ValueType value
+    \returns pointer to Node with underlying ValueType value and nullptr if ValueType can't be constructed from the
+             given args otherwise
+*/
     template<class ValueType, class ... Args>
     static std::unique_ptr<Node> makeNode(Args&& ... args);
 };
