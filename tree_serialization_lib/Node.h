@@ -22,8 +22,7 @@ public:
     enum Type : uint8_t {
         INT_TYPE = 0,
         DOUBLE_TYPE,
-        STRING_TYPE,
-        UNSUPPORTED_TYPE
+        STRING_TYPE
     };
 private:
     std::vector<std::unique_ptr<Node>> m_childes;
@@ -59,8 +58,14 @@ public:
     static std::pair<std::unique_ptr<Node>, NodeError>
     deserialize(std::istream& stream);
 
-    template<class ... Args>
-    static std::unique_ptr<Node> makeNode(Type type, Args&& ... args);
+    /*!
+    Fabric method which creates pointer to Node for underlying ValueType from the given args
+    \param[in] args to create Node for ValueType value
+    \returns pointer to Node with underlying ValueType value and nullptr if ValueType can't be constructed from the
+             given args otherwise
+*/
+    template<class ValueType, class ... Args>
+    static std::unique_ptr<Node> makeNode(Args&& ... args);
 };
 
 template<class ValueType>
@@ -96,27 +101,13 @@ void Node::appendChild(std::unique_ptr<Node>&& node) {
     m_childes.emplace_back(std::move(node));
 }
 
-template <class ValueType, class ... Args>
-std::unique_ptr<Node> getNodeOrNothing(Args&& ... args) {
+template<class ValueType, class ... Args>
+std::unique_ptr<Node> Node::makeNode(Args&& ... args) {
     if constexpr (std::is_constructible_v<ValueType, Args...>) {
         return std::make_unique<NodeSpecialised<ValueType>>(std::forward<Args>(args)...);
     }
 
     return nullptr;
-}
-
-template<class ... Args>
-std::unique_ptr<Node> Node::makeNode(Type type, Args&& ... args) {
-    switch (type) {
-        case INT_TYPE:
-            return getNodeOrNothing<int, Args ...>(std::forward<Args> (args)...);
-        case DOUBLE_TYPE:
-            return getNodeOrNothing<double, Args ...>(std::forward<Args> (args)...);
-        case STRING_TYPE:
-            return getNodeOrNothing<std::string, Args ...>(std::forward<Args> (args)...);
-        default:
-            return nullptr;
-    }
 }
 
 inline
